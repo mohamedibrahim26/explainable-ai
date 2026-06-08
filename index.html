@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Orion AI — Intelligent Assistant</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="styles.css"/>
+</head>
+<body>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="logo-mark">
+        <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
+          <circle cx="13" cy="13" r="13" fill="url(#lg)"/>
+          <path d="M8.5 13c0-2.49 2.01-4.5 4.5-4.5s4.5 2.01 4.5 4.5-2.01 4.5-4.5 4.5" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/>
+          <circle cx="13" cy="13" r="1.8" fill="#fff"/>
+          <defs><linearGradient id="lg" x1="0" y1="0" x2="26" y2="26"><stop stop-color="#7c3aed"/><stop offset="1" stop-color="#d97757"/></linearGradient></defs>
+        </svg>
+        <span class="logo-name">Orion</span>
+      </div>
+      <button class="sidebar-collapse-btn" id="sidebarCollapseBtn" title="Close sidebar">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M10 3L5 8l5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
+
+    <button class="new-chat-btn" id="newChatBtn">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+        <path d="M7 1v12M1 7h12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+      </svg>
+      New Chat
+    </button>
+
+    <a class="career-nav-btn" href="career.html">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+        <path d="M7 1l1.5 4h4l-3.25 2.4 1.25 4L7 9 3.5 11.4l1.25-4L1.5 5h4z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" fill="none"/>
+      </svg>
+      Career Architect
+    </a>
+
+    <a class="career-nav-btn admin-nav-btn" id="adminNavLink" href="admin.html" style="display:none">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+        <rect x="1" y="3" width="12" height="9" rx="1.5" stroke="currentColor" stroke-width="1.3"/>
+        <path d="M1 6h12" stroke="currentColor" stroke-width="1.3"/>
+        <circle cx="4" cy="9" r="0.9" fill="currentColor"/>
+        <path d="M6.5 9h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+      </svg>
+      Admin Dashboard
+    </a>
+
+    <div class="sidebar-search">
+      <svg class="search-icon" width="14" height="14" viewBox="0 0 14 14" fill="none">
+        <circle cx="6" cy="6" r="4.5" stroke="currentColor" stroke-width="1.3"/>
+        <path d="M10 10l2.5 2.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+      </svg>
+      <input type="text" id="sidebarSearch" placeholder="Search conversations…" oninput="searchConversations(this.value)"/>
+    </div>
+
+    <div class="conv-list" id="convList">
+      <!-- populated by JS -->
+    </div>
+
+    <div class="sidebar-footer">
+      <!-- User info (shown when logged in) -->
+      <div class="user-info" id="userInfo" style="display:none">
+        <div class="user-avatar" id="userAvatar">?</div>
+        <div class="user-details">
+          <div class="user-name"  id="userName">—</div>
+          <div class="user-email" id="userEmailDisplay">—</div>
+        </div>
+        <span class="sync-dot" id="syncDot" title="Sync status"></span>
+      </div>
+
+      <!-- Login prompt (shown when logged out) -->
+      <button class="login-prompt-btn" id="loginPromptBtn" onclick="showAuthModal('login')" style="display:none">
+        <svg width="13" height="13" viewBox="0 0 14 14" fill="none">
+          <path d="M5 2H2a1 1 0 00-1 1v8a1 1 0 001 1h3M9 10l3-3-3-3M12 7H5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Sign in to sync chats
+      </button>
+
+      <button class="theme-btn" id="themeBtn" onclick="toggleTheme()" title="Toggle theme">
+        <span id="themeIcon">☀️</span>
+        <span id="themeLabel">Light mode</span>
+      </button>
+
+      <button class="settings-btn" onclick="openSettings()" title="API Settings">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <circle cx="7" cy="7" r="2.2" stroke="currentColor" stroke-width="1.3"/>
+          <path d="M7 1v1.5M7 11.5V13M1 7h1.5M11.5 7H13M2.7 2.7l1.05 1.05M10.25 10.25l1.05 1.05M2.7 11.3l1.05-1.05M10.25 3.75l1.05-1.05" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+        </svg>
+        <span>API Settings</span>
+        <span class="api-status-dot" id="apiStatusDot"></span>
+      </button>
+
+      <!-- Logout (shown when logged in) -->
+      <button class="logout-btn" id="logoutBtn" onclick="handleLogout()" style="display:none">
+        <svg width="13" height="13" viewBox="0 0 14 14" fill="none">
+          <path d="M9 2h3a1 1 0 011 1v8a1 1 0 01-1 1H9M5 10L2 7l3-3M2 7h7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Sign out
+      </button>
+    </div>
+  </aside>
+
+  <!-- SIDEBAR OPEN BUTTON (when collapsed) -->
+  <button class="sidebar-open-btn" id="sidebarOpenBtn" title="Open sidebar">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+      <path d="M6 3l5 5-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </button>
+
+  <!-- MAIN -->
+  <main class="main" id="main">
+
+    <!-- HEADER -->
+    <header class="chat-header" id="chatHeader">
+      <button class="mobile-menu-btn" id="mobileMenuBtn" onclick="toggleSidebarMobile()">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+          <path d="M2 4h14M2 9h14M2 14h14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+        </svg>
+      </button>
+      <div class="header-model-pill">
+        <div class="model-dot"></div>
+        <span>Orion AI</span>
+        <span class="model-version">MVP</span>
+      </div>
+      <div class="header-actions">
+        <button class="header-action-btn" onclick="toggleTheme()" title="Toggle theme">
+          <span id="headerThemeIcon">☀️</span>
+        </button>
+        <button class="header-action-btn" id="headerNewBtn" onclick="startNewChat()" title="New chat">
+          <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
+            <path d="M7.5 1v13M1 7.5h13" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- CHAT AREA -->
+    <div class="chat-area" id="chatArea">
+
+      <!-- WELCOME SCREEN -->
+      <div class="welcome-screen" id="welcomeScreen">
+
+        <div class="welcome-logo">
+          <svg width="56" height="56" viewBox="0 0 56 56" fill="none">
+            <circle cx="28" cy="28" r="28" fill="url(#wlg)"/>
+            <!-- Orion constellation dots -->
+            <circle cx="28" cy="16" r="2.5" fill="rgba(255,255,255,0.9)"/>
+            <circle cx="20" cy="22" r="2"   fill="rgba(255,255,255,0.7)"/>
+            <circle cx="36" cy="22" r="2"   fill="rgba(255,255,255,0.7)"/>
+            <circle cx="22" cy="30" r="2.8" fill="#fff"/>
+            <circle cx="28" cy="28" r="2.8" fill="#fff"/>
+            <circle cx="34" cy="30" r="2.8" fill="#fff"/>
+            <circle cx="20" cy="38" r="2"   fill="rgba(255,255,255,0.7)"/>
+            <circle cx="36" cy="38" r="2"   fill="rgba(255,255,255,0.7)"/>
+            <!-- Connecting lines -->
+            <line x1="28" y1="16" x2="20" y2="22" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
+            <line x1="28" y1="16" x2="36" y2="22" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
+            <line x1="20" y1="22" x2="22" y2="30" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
+            <line x1="36" y1="22" x2="34" y2="30" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
+            <line x1="22" y1="30" x2="28" y2="28" stroke="rgba(255,255,255,0.4)" stroke-width="1"/>
+            <line x1="28" y1="28" x2="34" y2="30" stroke="rgba(255,255,255,0.4)" stroke-width="1"/>
+            <line x1="22" y1="30" x2="20" y2="38" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
+            <line x1="34" y1="30" x2="36" y2="38" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
+            <defs>
+              <linearGradient id="wlg" x1="0" y1="0" x2="56" y2="56">
+                <stop stop-color="#7c3aed"/>
+                <stop offset="1" stop-color="#d97757"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+
+        <div class="welcome-badge">Orion AI · MVP</div>
+        <h1 class="welcome-title">Your Intelligent AI Assistant</h1>
+        <p class="welcome-sub">Career guidance · Learning roadmaps · Cybersecurity · Research · Code · Writing</p>
+
+        <div class="prompt-grid" id="promptGrid">
+
+          <button class="prompt-card" onclick="sendPrompt(this)">
+            <div class="prompt-card-top">
+              <span class="prompt-category career">🎯 Career</span>
+            </div>
+            <div class="prompt-text">I want to become a cybersecurity analyst — build my complete career roadmap</div>
+          </button>
+
+          <button class="prompt-card" onclick="sendPrompt(this)">
+            <div class="prompt-card-top">
+              <span class="prompt-category learn">📚 Learning</span>
+            </div>
+            <div class="prompt-text">Create a 6-month plan to master Python from complete beginner to job-ready</div>
+          </button>
+
+          <button class="prompt-card" onclick="sendPrompt(this)">
+            <div class="prompt-card-top">
+              <span class="prompt-category cyber">🛡 Cybersecurity</span>
+            </div>
+            <div class="prompt-text">Explain how SQL injection works and how developers can defend against it</div>
+          </button>
+
+          <button class="prompt-card" onclick="sendPrompt(this)">
+            <div class="prompt-card-top">
+              <span class="prompt-category research">🔬 Research</span>
+            </div>
+            <div class="prompt-text">Help me write a strong introduction for my thesis on AI in healthcare</div>
+          </button>
+
+          <button class="prompt-card" onclick="sendPrompt(this)">
+            <div class="prompt-card-top">
+              <span class="prompt-category code">⚡ Code</span>
+            </div>
+            <div class="prompt-text">Build a REST API in Node.js with Express, JWT auth, and PostgreSQL</div>
+          </button>
+
+          <button class="prompt-card" onclick="sendPrompt(this)">
+            <div class="prompt-card-top">
+              <span class="prompt-category writing">✍️ Writing</span>
+            </div>
+            <div class="prompt-text">Write a professional cover letter for a software engineering internship</div>
+          </button>
+
+        </div>
+      </div>
+
+      <!-- MESSAGES CONTAINER -->
+      <div class="messages" id="messages"></div>
+
+    </div>
+
+    <!-- INPUT AREA -->
+    <div class="input-area" id="inputArea">
+      <!-- File preview strip (shows attached files before sending) -->
+      <div class="file-preview-strip" id="filePreviewStrip"></div>
+
+      <div class="input-box" id="inputBox">
+        <!-- Web search toggle -->
+        <button class="search-toggle-btn" id="searchToggleBtn"
+                onclick="toggleSearchMode()"
+                title="Toggle web search — uses Tavily to fetch live results">
+          <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
+            <circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.4"/>
+            <path d="M7 1.5C7 1.5 5 4 5 7s2 5.5 2 5.5M7 1.5C7 1.5 9 4 9 7s-2 5.5-2 5.5M1.5 7h12" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+          </svg>
+        </button>
+
+        <!-- Attach button (paperclip) -->
+        <button class="attach-btn" id="attachBtn"
+                onclick="document.getElementById('fileInput').click()"
+                title="Attach files — PDF, images, code (max 10 MB each)">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+            <path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"
+                  stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+
+        <textarea
+          id="msgInput"
+          placeholder="Message Orion…"
+          rows="1"
+          oninput="autoResize(this)"
+          onkeydown="handleKey(event)"
+        ></textarea>
+        <div class="input-actions">
+          <button class="stop-btn" id="stopBtn" onclick="stopGeneration()" style="display:none" title="Stop">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <rect x="2" y="2" width="10" height="10" rx="2" fill="currentColor"/>
+            </svg>
+          </button>
+          <button class="send-btn" id="sendBtn" onclick="sendMessage()" title="Send (Enter)">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <path d="M12 7L2 2l2.5 5L2 12l10-5z" fill="currentColor"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+      <p class="input-disclaimer">Orion can make mistakes. Verify important information.</p>
+    </div>
+
+    <!-- Drag & drop overlay -->
+    <div class="drag-overlay" id="dragOverlay">
+      <div class="drag-overlay-inner">
+        <span class="drag-icon">📎</span>
+        <span class="drag-title">Drop files to attach</span>
+        <span class="drag-sub">PDF · Images · Code — up to 10 MB each</span>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- SETTINGS MODAL -->
+  <div class="rename-overlay" id="settingsOverlay" onclick="closeSettings()">
+    <div class="rename-modal settings-modal" onclick="event.stopPropagation()">
+      <div class="settings-header">
+        <div class="rename-title">API Settings</div>
+        <button class="settings-close-btn" onclick="closeSettings()">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path d="M1 1l12 12M13 1L1 13" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </div>
+
+      <label class="settings-label">AI Provider</label>
+      <select class="settings-select" id="providerSelect" onchange="updateProviderHint()">
+        <option value="groq">🆓 Groq — Llama 3 (Free, Recommended)</option>
+        <option value="openai">OpenAI (GPT-4o-mini)</option>
+        <option value="anthropic">Anthropic (Claude Haiku)</option>
+        <option value="gemini">Google Gemini (Free tier available)</option>
+      </select>
+
+      <label class="settings-label" style="margin-top:14px">API Key</label>
+      <div class="api-key-wrap">
+        <input type="password" class="rename-input api-key-input" id="apiKeyInput"
+               placeholder="Paste your API key here…"/>
+        <button class="api-key-eye" id="apiKeyEye" onclick="toggleKeyVisibility()" title="Show/hide key">👁</button>
+      </div>
+
+      <div class="settings-hint" id="providerHint"></div>
+
+      <div class="settings-status" id="settingsStatus"></div>
+
+      <!-- Web Search section -->
+      <div class="settings-divider"></div>
+      <label class="settings-label" style="margin-top:16px">🌐 Web Search API Key (Tavily)</label>
+      <div class="api-key-wrap">
+        <input type="password" class="rename-input api-key-input" id="searchKeyInput"
+               placeholder="tvly-…  (get free key at tavily.com)"/>
+        <button class="api-key-eye" id="searchKeyEye" onclick="toggleSearchKeyVisibility()" title="Show/hide key">👁</button>
+      </div>
+      <div class="settings-hint">
+        ✅ <strong>1,000 free searches/month — no credit card.</strong>
+        Get your key at <a href="https://tavily.com" target="_blank">tavily.com</a>.
+        Adds a 🌐 button to chat for live web results with citations.
+      </div>
+
+      <div class="rename-actions" style="margin-top:16px">
+        <button class="rename-cancel" onclick="clearApiKey()">Clear Key</button>
+        <button class="rename-confirm" onclick="saveApiKey()">Save &amp; Connect</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- RENAME MODAL -->
+  <div class="rename-overlay" id="renameOverlay" onclick="closeRename()">
+    <div class="rename-modal" onclick="event.stopPropagation()">
+      <div class="rename-title">Rename conversation</div>
+      <input type="text" class="rename-input" id="renameInput" onkeydown="if(event.key==='Enter')confirmRename();if(event.key==='Escape')closeRename()"/>
+      <div class="rename-actions">
+        <button class="rename-cancel" onclick="closeRename()">Cancel</button>
+        <button class="rename-confirm" onclick="confirmRename()">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- AUTH MODAL -->
+  <div class="rename-overlay" id="authOverlay">
+    <div class="rename-modal auth-modal" onclick="event.stopPropagation()">
+
+      <div style="text-align:center;margin-bottom:16px">
+        <div style="display:inline-flex;align-items:center;gap:8px;font-weight:700;font-size:1rem">
+          <div style="width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,#7c3aed,#d97757);display:flex;align-items:center;justify-content:center;font-size:0.85rem;font-weight:800;color:#fff">O</div>
+          Orion AI
+        </div>
+      </div>
+
+      <div class="auth-tabs">
+        <button class="auth-tab active" id="loginTab"  onclick="switchAuthTab('login')">Sign In</button>
+        <button class="auth-tab"        id="signupTab" onclick="switchAuthTab('signup')">Create Account</button>
+      </div>
+
+      <div id="authError" class="auth-error"></div>
+
+      <!-- Login form -->
+      <div id="loginForm">
+        <div class="auth-field">
+          <label>Email</label>
+          <input class="auth-input" id="loginEmail" type="email" placeholder="you@email.com"
+                 onkeydown="if(event.key==='Enter')submitLogin()"/>
+        </div>
+        <div class="auth-field">
+          <label>Password</label>
+          <input class="auth-input" id="loginPassword" type="password" placeholder="Your password"
+                 onkeydown="if(event.key==='Enter')submitLogin()"/>
+        </div>
+        <button class="auth-submit" id="loginSubmit" onclick="submitLogin()">Sign In</button>
+      </div>
+
+      <!-- Signup form -->
+      <div id="signupForm" style="display:none">
+        <div class="auth-field">
+          <label>Name</label>
+          <input class="auth-input" id="signupName" type="text" placeholder="Your name"
+                 onkeydown="if(event.key==='Enter')submitSignup()"/>
+        </div>
+        <div class="auth-field">
+          <label>Email</label>
+          <input class="auth-input" id="signupEmail" type="email" placeholder="you@email.com"
+                 onkeydown="if(event.key==='Enter')submitSignup()"/>
+        </div>
+        <div class="auth-field">
+          <label>Password</label>
+          <input class="auth-input" id="signupPassword" type="password" placeholder="At least 6 characters"
+                 onkeydown="if(event.key==='Enter')submitSignup()"/>
+        </div>
+        <button class="auth-submit" id="signupSubmit" onclick="submitSignup()">Create Account</button>
+      </div>
+
+      <p style="text-align:center;font-size:0.72rem;color:var(--text3);margin-top:16px">
+        You can also use Orion without signing in —
+        <button style="color:var(--accent);font-size:0.72rem;text-decoration:underline" onclick="hideAuthModal()">continue as guest</button>
+      </p>
+    </div>
+  </div>
+
+  <!-- Hidden file input -->
+  <input type="file" id="fileInput" multiple
+    accept=".pdf,.txt,.md,.js,.ts,.jsx,.tsx,.py,.html,.css,.json,.csv,.xml,.yaml,.yml,.sh,.sql,.env,image/*"
+    style="display:none"
+    onchange="handleFileInputChange(this)"/>
+
+  <!-- PDF.js for text extraction -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

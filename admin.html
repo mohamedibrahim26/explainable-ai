@@ -1,0 +1,1166 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Dashboard — Orion AI</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    /* ── Variables ──────────────────────────────────────── */
+    :root {
+      --bg:      #0d0c12;
+      --surf:    #16141f;
+      --surf2:   #1e1b2e;
+      --surf3:   #252236;
+      --bdr:     rgba(255,255,255,0.07);
+      --bdr2:    rgba(255,255,255,0.12);
+      --t1:      #f0eeff;
+      --t2:      #c4c0db;
+      --t3:      #7a768f;
+      --t4:      #4a4660;
+      --accent:  #7c3aed;
+      --accent2: #9d6df5;
+      --orange:  #d97757;
+      --green:   #10b981;
+      --cyan:    #06b6d4;
+      --red:     #ef4444;
+      --radius:  14px;
+      --shadow:  0 4px 24px rgba(0,0,0,0.4);
+    }
+    [data-theme="light"] {
+      --bg:    #f4f3f8;
+      --surf:  #ffffff;
+      --surf2: #f0eff6;
+      --surf3: #e8e6f0;
+      --bdr:   rgba(0,0,0,0.08);
+      --bdr2:  rgba(0,0,0,0.14);
+      --t1:    #1a1825;
+      --t2:    #3d3956;
+      --t3:    #7a768f;
+      --t4:    #b4b0c8;
+      --shadow: 0 4px 24px rgba(0,0,0,0.1);
+    }
+
+    /* ── Reset ──────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--t1);
+      min-height: 100vh;
+      line-height: 1.5;
+    }
+    button { font-family: inherit; cursor: pointer; border: none; background: none; }
+    a { text-decoration: none; color: inherit; }
+
+    /* ── Nav ────────────────────────────────────────────── */
+    nav {
+      height: 56px;
+      background: var(--surf);
+      border-bottom: 1px solid var(--bdr);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .nav-left  { display: flex; align-items: center; gap: 14px; }
+    .nav-right { display: flex; align-items: center; gap: 12px; }
+
+    .nav-logo {
+      display: flex; align-items: center; gap: 8px;
+      font-weight: 700; font-size: 1rem; color: var(--t1);
+    }
+    .nav-logo-mark {
+      width: 30px; height: 30px; border-radius: 9px;
+      background: linear-gradient(135deg, #7c3aed, #d97757);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.85rem; font-weight: 800; color: #fff;
+    }
+    .nav-badge {
+      font-size: 0.7rem; font-weight: 600; padding: 2px 8px;
+      background: rgba(124,58,237,0.15); color: var(--accent2);
+      border: 1px solid rgba(124,58,237,0.25); border-radius: 20px;
+    }
+
+    .nav-back-btn {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 0.82rem; color: var(--t3); padding: 6px 10px;
+      border-radius: 8px; transition: background 0.15s, color 0.15s;
+    }
+    .nav-back-btn:hover { background: var(--surf2); color: var(--t2); }
+
+    .refresh-info {
+      font-size: 0.75rem; color: var(--t3);
+      display: flex; align-items: center; gap: 6px;
+    }
+    .refresh-btn {
+      width: 28px; height: 28px; border-radius: 7px;
+      display: flex; align-items: center; justify-content: center;
+      background: var(--surf2); color: var(--t3);
+      transition: background 0.15s, color 0.15s;
+      font-size: 0.9rem;
+    }
+    .refresh-btn:hover { background: var(--surf3); color: var(--t2); }
+
+    /* ── Screen system ──────────────────────────────────── */
+    .screen { display: none; }
+    .screen.active { display: block; }
+
+    /* ── Auth / Gate screens ────────────────────────────── */
+    .gate-wrap {
+      min-height: calc(100vh - 56px);
+      display: flex; align-items: center; justify-content: center;
+      padding: 24px;
+    }
+    .gate-card {
+      background: var(--surf);
+      border: 1px solid var(--bdr);
+      border-radius: var(--radius);
+      padding: 36px 32px;
+      width: 100%; max-width: 380px;
+      text-align: center;
+      box-shadow: var(--shadow);
+    }
+    .gate-icon { font-size: 2.5rem; margin-bottom: 14px; }
+    .gate-title { font-size: 1.2rem; font-weight: 700; color: var(--t1); margin-bottom: 8px; }
+    .gate-sub   { font-size: 0.86rem; color: var(--t3); margin-bottom: 24px; line-height: 1.6; }
+
+    .gate-input {
+      width: 100%; padding: 10px 12px;
+      background: var(--surf2); border: 1px solid var(--bdr2);
+      border-radius: 9px; color: var(--t1); font-size: 0.9rem;
+      font-family: inherit; outline: none; margin-bottom: 10px;
+      transition: border-color 0.15s;
+    }
+    .gate-input:focus { border-color: var(--accent); }
+
+    .gate-btn {
+      width: 100%; padding: 11px;
+      background: linear-gradient(135deg, #7c3aed, #d97757);
+      color: #fff; font-size: 0.9rem; font-weight: 600;
+      border-radius: 9px; cursor: pointer;
+      transition: opacity 0.15s;
+      margin-top: 4px;
+    }
+    .gate-btn:hover { opacity: 0.9; }
+    .gate-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .gate-link {
+      display: block; margin-top: 18px;
+      font-size: 0.8rem; color: var(--t3);
+    }
+    .gate-link a { color: var(--accent2); }
+    .gate-link a:hover { text-decoration: underline; }
+
+    .gate-error {
+      background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.25);
+      color: #f87171; border-radius: 8px; padding: 8px 12px;
+      font-size: 0.82rem; margin-bottom: 12px; display: none;
+    }
+    .gate-error.visible { display: block; }
+
+    /* Spinner for checking screen */
+    .spinner {
+      width: 36px; height: 36px; margin: 0 auto 16px;
+      border: 3px solid var(--bdr2);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Dashboard layout ──────────────────────────────── */
+    #dashboardScreen {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 28px 24px 60px;
+    }
+
+    .dashboard-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 24px; flex-wrap: wrap; gap: 12px;
+    }
+    .dashboard-title { font-size: 1.3rem; font-weight: 700; color: var(--t1); }
+    .dashboard-sub   { font-size: 0.8rem; color: var(--t3); margin-top: 2px; }
+
+    /* ── Stat cards ─────────────────────────────────────── */
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    @media (max-width: 900px)  { .stat-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 480px)  { .stat-grid { grid-template-columns: 1fr; } }
+
+    .stat-card {
+      background: var(--surf);
+      border: 1px solid var(--bdr);
+      border-radius: var(--radius);
+      padding: 18px 20px;
+      position: relative;
+      overflow: hidden;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .stat-card:hover {
+      border-color: var(--bdr2);
+      box-shadow: 0 2px 12px rgba(0,0,0,0.25);
+    }
+    .stat-card::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    }
+    .stat-card.c-purple::before { background: linear-gradient(90deg, #7c3aed, #9d6df5); }
+    .stat-card.c-cyan::before   { background: linear-gradient(90deg, #06b6d4, #22d3ee); }
+    .stat-card.c-green::before  { background: linear-gradient(90deg, #10b981, #34d399); }
+    .stat-card.c-orange::before { background: linear-gradient(90deg, #d97757, #f59e0b); }
+
+    .stat-icon {
+      width: 36px; height: 36px; border-radius: 9px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem; margin-bottom: 12px;
+    }
+    .stat-card.c-purple .stat-icon { background: rgba(124,58,237,0.12); }
+    .stat-card.c-cyan   .stat-icon { background: rgba(6,182,212,0.12);  }
+    .stat-card.c-green  .stat-icon { background: rgba(16,185,129,0.12); }
+    .stat-card.c-orange .stat-icon { background: rgba(217,119,87,0.12); }
+
+    .stat-label { font-size: 0.75rem; font-weight: 500; color: var(--t3); text-transform: uppercase; letter-spacing: 0.06em; }
+    .stat-value { font-size: 2rem; font-weight: 700; color: var(--t1); margin: 4px 0 6px; line-height: 1; }
+    .stat-sub   { font-size: 0.76rem; color: var(--t3); }
+    .stat-up    { color: var(--green); }
+    .stat-na    { color: var(--t4); }
+
+    /* Skeleton shimmer */
+    .skel {
+      background: linear-gradient(90deg, var(--surf2) 25%, var(--surf3) 50%, var(--surf2) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.4s infinite;
+      border-radius: 6px;
+    }
+    @keyframes shimmer { to { background-position: -200% 0; } }
+    .skel-val { height: 32px; width: 80px; margin: 4px 0 6px; }
+    .skel-sub { height: 14px; width: 110px; }
+
+    /* ── Middle row: chart + health ─────────────────────── */
+    .mid-row {
+      display: grid;
+      grid-template-columns: 1fr 300px;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    @media (max-width: 800px) { .mid-row { grid-template-columns: 1fr; } }
+
+    /* ── Chart cards ────────────────────────────────────── */
+    .chart-card {
+      background: var(--surf);
+      border: 1px solid var(--bdr);
+      border-radius: var(--radius);
+      padding: 20px;
+    }
+    .chart-title {
+      font-size: 0.82rem; font-weight: 600; color: var(--t2);
+      margin-bottom: 16px; display: flex; align-items: center; gap: 8px;
+    }
+    .chart-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+    }
+    .chart-wrap { position: relative; height: 180px; }
+    .chart-full-wrap { position: relative; height: 160px; }
+
+    /* ── System health ───────────────────────────────────── */
+    .health-card {
+      background: var(--surf);
+      border: 1px solid var(--bdr);
+      border-radius: var(--radius);
+      padding: 20px;
+    }
+    .health-title {
+      font-size: 0.82rem; font-weight: 600; color: var(--t2);
+      margin-bottom: 16px; display: flex; align-items: center; gap: 8px;
+    }
+    .health-status-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 6px rgba(16,185,129,0.6);
+    }
+    .health-status-dot.err { background: var(--red); box-shadow: 0 0 6px rgba(239,68,68,0.6); }
+
+    .health-rows { display: flex; flex-direction: column; gap: 14px; }
+    .health-row  { display: flex; align-items: center; gap: 12px; }
+    .health-indicator {
+      width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+    }
+    .hi-green  { background: var(--green);  box-shadow: 0 0 5px rgba(16,185,129,0.5);  }
+    .hi-blue   { background: var(--cyan);   box-shadow: 0 0 5px rgba(6,182,212,0.5);   }
+    .hi-orange { background: var(--orange); box-shadow: 0 0 5px rgba(217,119,87,0.5);  }
+    .hi-purple { background: var(--accent); box-shadow: 0 0 5px rgba(124,58,237,0.5);  }
+
+    .health-row-info { flex: 1; min-width: 0; }
+    .health-row-label { font-size: 0.73rem; color: var(--t3); }
+    .health-row-val   { font-size: 0.86rem; font-weight: 500; color: var(--t1); margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    /* ── Messages chart row ─────────────────────────────── */
+    .full-chart {
+      background: var(--surf);
+      border: 1px solid var(--bdr);
+      border-radius: var(--radius);
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    /* ── Tables row ─────────────────────────────────────── */
+    .tables-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    @media (max-width: 900px) { .tables-row { grid-template-columns: 1fr; } }
+
+    .table-card {
+      background: var(--surf);
+      border: 1px solid var(--bdr);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+    .table-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 18px 12px;
+      border-bottom: 1px solid var(--bdr);
+    }
+    .table-title { font-size: 0.82rem; font-weight: 600; color: var(--t2); }
+    .table-count-badge {
+      font-size: 0.7rem; font-weight: 600; color: var(--t3);
+      background: var(--surf2); border: 1px solid var(--bdr);
+      border-radius: 20px; padding: 1px 8px;
+    }
+
+    .data-table { width: 100%; border-collapse: collapse; }
+    .data-table th {
+      font-size: 0.68rem; font-weight: 600; color: var(--t3);
+      text-transform: uppercase; letter-spacing: 0.07em;
+      padding: 8px 18px; text-align: left;
+      background: var(--surf2);
+    }
+    .data-table td {
+      padding: 10px 18px; font-size: 0.83rem; color: var(--t2);
+      border-top: 1px solid var(--bdr);
+    }
+    .data-table tr:hover td { background: var(--surf2); }
+
+    .cell-primary { color: var(--t1); font-weight: 500; }
+    .cell-muted   { color: var(--t3); font-size: 0.75rem; }
+
+    .avatar {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: linear-gradient(135deg, #7c3aed, #d97757);
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 0.72rem; font-weight: 700; color: #fff;
+      flex-shrink: 0;
+    }
+
+    .user-cell { display: flex; align-items: center; gap: 9px; }
+
+    .badge {
+      display: inline-flex; align-items: center; justify-content: center;
+      min-width: 24px; height: 20px; border-radius: 10px; padding: 0 6px;
+      font-size: 0.7rem; font-weight: 600;
+      background: rgba(124,58,237,0.15); color: var(--accent2);
+      border: 1px solid rgba(124,58,237,0.2);
+    }
+
+    .load-more-btn {
+      width: 100%; padding: 10px;
+      font-size: 0.78rem; color: var(--t3);
+      border-top: 1px solid var(--bdr);
+      background: none; cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+    }
+    .load-more-btn:hover { background: var(--surf2); color: var(--t2); }
+
+    .empty-row { text-align: center; color: var(--t4); padding: 24px !important; }
+
+    /* ── Error banner ────────────────────────────────────── */
+    .error-banner {
+      background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.2);
+      border-radius: 10px; padding: 14px 18px; color: #f87171;
+      font-size: 0.84rem; margin-bottom: 20px; display: none;
+    }
+    .error-banner.visible { display: block; }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-left">
+    <a href="index.html" class="nav-logo">
+      <div class="nav-logo-mark">O</div>
+      <span>Orion AI</span>
+    </a>
+    <span class="nav-badge">Admin Dashboard</span>
+  </div>
+  <div class="nav-right">
+    <div class="refresh-info" id="refreshInfo" style="display:none">
+      <span id="lastRefreshed">–</span>
+      <button class="refresh-btn" onclick="refreshDashboard()" title="Refresh data">↻</button>
+    </div>
+    <a href="index.html" class="nav-back-btn">
+      ← Back to Chat
+    </a>
+  </div>
+</nav>
+
+<!-- ═══════════════════════════════════════════
+     SCREEN: Checking access
+═══════════════════════════════════════════ -->
+<div class="screen active" id="checkingScreen">
+  <div class="gate-wrap">
+    <div class="gate-card">
+      <div class="spinner"></div>
+      <div class="gate-title">Checking access…</div>
+      <div class="gate-sub">Verifying your admin credentials</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     SCREEN: Login
+═══════════════════════════════════════════ -->
+<div class="screen" id="loginScreen">
+  <div class="gate-wrap">
+    <div class="gate-card">
+      <div class="gate-icon">🔐</div>
+      <div class="gate-title">Admin Access</div>
+      <div class="gate-sub">Sign in with your Orion AI account.<br/>Admin privileges required.</div>
+      <div class="gate-error" id="loginError"></div>
+      <input class="gate-input" id="loginEmail"    type="email"    placeholder="Email address"
+             onkeydown="if(event.key==='Enter')adminLogin()"/>
+      <input class="gate-input" id="loginPassword" type="password" placeholder="Password"
+             onkeydown="if(event.key==='Enter')adminLogin()"/>
+      <button class="gate-btn" id="loginBtn" onclick="adminLogin()">Sign In</button>
+      <span class="gate-link"><a href="index.html">← Return to Orion AI</a></span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     SCREEN: Not authorized
+═══════════════════════════════════════════ -->
+<div class="screen" id="unauthorizedScreen">
+  <div class="gate-wrap">
+    <div class="gate-card">
+      <div class="gate-icon">🚫</div>
+      <div class="gate-title">Access Restricted</div>
+      <div class="gate-sub">
+        Your account doesn't have admin privileges.<br/>
+        Add your email to <code>ADMIN_EMAILS</code> in <code>backend/.env</code>.
+      </div>
+      <a href="index.html"><button class="gate-btn">← Back to Orion AI</button></a>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     SCREEN: Backend down
+═══════════════════════════════════════════ -->
+<div class="screen" id="backendErrorScreen">
+  <div class="gate-wrap">
+    <div class="gate-card">
+      <div class="gate-icon">🔌</div>
+      <div class="gate-title">Backend Not Running</div>
+      <div class="gate-sub">
+        Could not connect to the Orion AI backend.<br/><br/>
+        Run <code>cd backend &amp;&amp; npm run dev</code> then refresh this page.
+      </div>
+      <button class="gate-btn" onclick="location.reload()">Try Again</button>
+      <span class="gate-link"><a href="index.html">← Back to Chat</a></span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     SCREEN: Dashboard
+═══════════════════════════════════════════ -->
+<main class="screen" id="dashboardScreen">
+
+  <div class="dashboard-header">
+    <div>
+      <div class="dashboard-title">Dashboard Overview</div>
+      <div class="dashboard-sub" id="adminEmailLabel">Loading…</div>
+    </div>
+  </div>
+
+  <div class="error-banner" id="errorBanner"></div>
+
+  <!-- Stat cards -->
+  <div class="stat-grid">
+
+    <div class="stat-card c-purple">
+      <div class="stat-icon">👥</div>
+      <div class="stat-label">Total Users</div>
+      <div class="stat-value" id="sv-users"><span class="skel skel-val"></span></div>
+      <div class="stat-sub"  id="ss-users"><span class="skel skel-sub"></span></div>
+    </div>
+
+    <div class="stat-card c-cyan">
+      <div class="stat-icon">💬</div>
+      <div class="stat-label">Conversations</div>
+      <div class="stat-value" id="sv-convs"><span class="skel skel-val"></span></div>
+      <div class="stat-sub"  id="ss-convs"><span class="skel skel-sub"></span></div>
+    </div>
+
+    <div class="stat-card c-green">
+      <div class="stat-icon">📨</div>
+      <div class="stat-label">Total Messages</div>
+      <div class="stat-value" id="sv-msgs"><span class="skel skel-val"></span></div>
+      <div class="stat-sub"  id="ss-msgs"><span class="skel skel-sub"></span></div>
+    </div>
+
+    <div class="stat-card c-orange">
+      <div class="stat-icon">📊</div>
+      <div class="stat-label">Avg Msgs / User</div>
+      <div class="stat-value" id="sv-avg"><span class="skel skel-val"></span></div>
+      <div class="stat-sub"  id="ss-avg"><span class="skel skel-sub"></span></div>
+    </div>
+
+  </div>
+
+  <!-- User signups chart + System health -->
+  <div class="mid-row">
+
+    <div class="chart-card">
+      <div class="chart-title">
+        <span class="chart-dot" style="background:#7c3aed"></span>
+        New User Signups — Last 7 Days
+      </div>
+      <div class="chart-wrap">
+        <canvas id="userChart"></canvas>
+      </div>
+    </div>
+
+    <div class="health-card">
+      <div class="health-title">
+        <span class="health-status-dot" id="healthDot"></span>
+        System Health
+      </div>
+      <div class="health-rows" id="healthRows">
+        <!-- populated by JS -->
+        <div class="health-row">
+          <span class="health-indicator hi-green"></span>
+          <div class="health-row-info">
+            <div class="health-row-label">Database</div>
+            <div class="health-row-val skel" style="height:14px;width:80px;border-radius:4px"></div>
+          </div>
+        </div>
+        <div class="health-row">
+          <span class="health-indicator hi-blue"></span>
+          <div class="health-row-info">
+            <div class="health-row-label">Server Uptime</div>
+            <div class="health-row-val skel" style="height:14px;width:70px;border-radius:4px"></div>
+          </div>
+        </div>
+        <div class="health-row">
+          <span class="health-indicator hi-orange"></span>
+          <div class="health-row-info">
+            <div class="health-row-label">Memory</div>
+            <div class="health-row-val skel" style="height:14px;width:100px;border-radius:4px"></div>
+          </div>
+        </div>
+        <div class="health-row">
+          <span class="health-indicator hi-purple"></span>
+          <div class="health-row-info">
+            <div class="health-row-label">Node.js</div>
+            <div class="health-row-val skel" style="height:14px;width:60px;border-radius:4px"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Messages activity chart -->
+  <div class="full-chart">
+    <div class="chart-title">
+      <span class="chart-dot" style="background:#d97757"></span>
+      Message Activity — Last 7 Days
+    </div>
+    <div class="chart-full-wrap">
+      <canvas id="msgChart"></canvas>
+    </div>
+  </div>
+
+  <!-- Tables -->
+  <div class="tables-row">
+
+    <!-- Users table -->
+    <div class="table-card">
+      <div class="table-header">
+        <span class="table-title">Recent Users</span>
+        <span class="table-count-badge" id="usersCountBadge">–</span>
+      </div>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th></th>
+            <th>Name / Email</th>
+            <th>Joined</th>
+            <th>Chats</th>
+          </tr>
+        </thead>
+        <tbody id="usersBody">
+          <tr><td colspan="4" class="empty-row">Loading…</td></tr>
+        </tbody>
+      </table>
+      <button class="load-more-btn" id="usersMoreBtn" style="display:none"
+              onclick="loadMoreUsers()">Load more users ↓</button>
+    </div>
+
+    <!-- Conversations table -->
+    <div class="table-card">
+      <div class="table-header">
+        <span class="table-title">Recent Conversations</span>
+        <span class="table-count-badge" id="convsCountBadge">–</span>
+      </div>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Title</th>
+            <th>User</th>
+            <th>Msgs</th>
+            <th>Updated</th>
+          </tr>
+        </thead>
+        <tbody id="convsBody">
+          <tr><td colspan="4" class="empty-row">Loading…</td></tr>
+        </tbody>
+      </table>
+      <button class="load-more-btn" id="convsMoreBtn" style="display:none"
+              onclick="loadMoreConvs()">Load more conversations ↓</button>
+    </div>
+
+  </div>
+
+</main>
+
+<!-- Chart.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+
+<script>
+/* ═══════════════════════════════════════
+   CONSTANTS
+═══════════════════════════════════════ */
+const API_BASE    = 'http://localhost:3001/api';
+const PAGE_SIZE   = 15;
+
+/* ═══════════════════════════════════════
+   STATE
+═══════════════════════════════════════ */
+let userChartInst = null;
+let msgChartInst  = null;
+let usersSkip     = 0;
+let usersTotal    = 0;
+let convsSkip     = 0;
+let convsTotal    = 0;
+let refreshTimer  = null;
+let lastRefreshAt = null;
+let refreshCountdown = null;
+
+/* ═══════════════════════════════════════
+   HELPERS — auth
+═══════════════════════════════════════ */
+function getToken()   { return localStorage.getItem('orion_access_token'); }
+function getRefresh() { return localStorage.getItem('orion_refresh_token'); }
+
+function setAuth(access, refresh) {
+  if (access)  localStorage.setItem('orion_access_token', access);
+  if (refresh) localStorage.setItem('orion_refresh_token', refresh);
+}
+
+async function refreshToken() {
+  const rt = getRefresh();
+  if (!rt) return false;
+  try {
+    const r = await fetch(`${API_BASE}/auth/refresh`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ refreshToken: rt }),
+    });
+    if (!r.ok) return false;
+    const d = await r.json();
+    setAuth(d.accessToken, d.refreshToken);
+    return true;
+  } catch { return false; }
+}
+
+async function authedFetch(url, opts = {}) {
+  const go = (token) =>
+    fetch(url, { ...opts, headers: { ...(opts.headers||{}), Authorization: `Bearer ${token}` } });
+
+  let r = await go(getToken());
+  if (r.status === 401) {
+    const ok = await refreshToken();
+    if (!ok) return r;
+    r = await go(getToken());
+  }
+  return r;
+}
+
+/* ═══════════════════════════════════════
+   SCREENS
+═══════════════════════════════════════ */
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+/* ═══════════════════════════════════════
+   INIT — check access
+═══════════════════════════════════════ */
+async function init() {
+  // Apply saved theme
+  const theme = localStorage.getItem('orion_theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', theme);
+
+  showScreen('checkingScreen');
+
+  const token = getToken();
+  if (!token && !getRefresh()) {
+    showScreen('loginScreen');
+    return;
+  }
+
+  try {
+    const r = await authedFetch(`${API_BASE}/admin/check`);
+    if (r.status === 401) { showScreen('loginScreen'); return; }
+
+    const data = await r.json();
+    if (!data.isAdmin) { showScreen('unauthorizedScreen'); return; }
+
+    showScreen('dashboardScreen');
+    document.getElementById('refreshInfo').style.display = 'flex';
+    loadDashboard();
+    startRefreshCountdown();
+  } catch (err) {
+    // Backend unreachable
+    showScreen('backendErrorScreen');
+  }
+}
+
+/* ═══════════════════════════════════════
+   LOGIN
+═══════════════════════════════════════ */
+async function adminLogin() {
+  const email    = document.getElementById('loginEmail').value.trim();
+  const password = document.getElementById('loginPassword').value;
+  const errEl    = document.getElementById('loginError');
+  const btn      = document.getElementById('loginBtn');
+
+  errEl.classList.remove('visible');
+  if (!email || !password) {
+    errEl.textContent = 'Please enter your email and password.';
+    errEl.classList.add('visible');
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Signing in…';
+
+  try {
+    const r = await fetch(`${API_BASE}/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+    });
+    const data = await r.json();
+    if (!r.ok) {
+      errEl.textContent = data.error || 'Invalid credentials.';
+      errEl.classList.add('visible');
+      return;
+    }
+
+    setAuth(data.accessToken, data.refreshToken);
+
+    // Check admin
+    const checkR = await authedFetch(`${API_BASE}/admin/check`);
+    const check  = await checkR.json();
+    if (!check.isAdmin) {
+      showScreen('unauthorizedScreen');
+      return;
+    }
+
+    showScreen('dashboardScreen');
+    document.getElementById('refreshInfo').style.display = 'flex';
+    loadDashboard();
+    startRefreshCountdown();
+  } catch (err) {
+    showScreen('backendErrorScreen');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Sign In';
+  }
+}
+
+/* ═══════════════════════════════════════
+   LOAD DASHBOARD
+═══════════════════════════════════════ */
+async function loadDashboard() {
+  await Promise.all([
+    loadOverview(),
+    loadUsers(true),
+    loadConvs(true),
+  ]);
+  lastRefreshAt = Date.now();
+  updateRefreshedLabel();
+}
+
+async function refreshDashboard() {
+  usersSkip = 0;
+  convsSkip = 0;
+  clearInterval(refreshCountdown);
+  await loadDashboard();
+  startRefreshCountdown();
+}
+
+/* ─── Overview stats + charts ────────── */
+async function loadOverview() {
+  try {
+    const r = await authedFetch(`${API_BASE}/admin/overview`);
+    if (!r.ok) { showError('Could not load stats: ' + r.status); return; }
+    const d = await r.json();
+    renderStats(d);
+    renderCharts(d);
+    renderHealth(d);
+
+    const user = JSON.parse(localStorage.getItem('orion_user') || '{}');
+    document.getElementById('adminEmailLabel').textContent =
+      `Logged in as ${user.email || 'admin'}  ·  Admin access`;
+  } catch (err) {
+    showError('Failed to fetch overview data. Is the backend running?');
+  }
+}
+
+/* ─── Users table ────────────────────── */
+async function loadUsers(reset = false) {
+  if (reset) usersSkip = 0;
+  try {
+    const r = await authedFetch(`${API_BASE}/admin/users?skip=${usersSkip}&take=${PAGE_SIZE}`);
+    if (!r.ok) return;
+    const d = await r.json();
+    usersTotal = d.total;
+    renderUsersTable(d.users, reset);
+    document.getElementById('usersCountBadge').textContent = fmtNum(usersTotal);
+    usersSkip += d.users.length;
+    document.getElementById('usersMoreBtn').style.display =
+      usersSkip < usersTotal ? 'block' : 'none';
+  } catch {}
+}
+async function loadMoreUsers() { await loadUsers(false); }
+
+/* ─── Conversations table ─────────────── */
+async function loadConvs(reset = false) {
+  if (reset) convsSkip = 0;
+  try {
+    const r = await authedFetch(`${API_BASE}/admin/conversations?skip=${convsSkip}&take=${PAGE_SIZE}`);
+    if (!r.ok) return;
+    const d = await r.json();
+    convsTotal = d.total;
+    renderConvsTable(d.conversations, reset);
+    document.getElementById('convsCountBadge').textContent = fmtNum(convsTotal);
+    convsSkip += d.conversations.length;
+    document.getElementById('convsMoreBtn').style.display =
+      convsSkip < convsTotal ? 'block' : 'none';
+  } catch {}
+}
+async function loadMoreConvs() { await loadConvs(false); }
+
+/* ═══════════════════════════════════════
+   RENDER
+═══════════════════════════════════════ */
+function renderStats(d) {
+  const avg = d.users.total > 0
+    ? (d.messages.total / d.users.total).toFixed(1)
+    : '0';
+
+  setStatCard('sv-users', 'ss-users',
+    fmtNum(d.users.total),
+    d.users.week > 0 ? `+${d.users.week} this week` : 'No new signups this week',
+    d.users.week > 0
+  );
+  setStatCard('sv-convs', 'ss-convs',
+    fmtNum(d.convs.total),
+    d.convs.today > 0 ? `+${d.convs.today} today` : 'None today',
+    d.convs.today > 0
+  );
+  setStatCard('sv-msgs', 'ss-msgs',
+    fmtNum(d.messages.total),
+    d.messages.today > 0 ? `+${d.messages.today} today` : 'None today',
+    d.messages.today > 0
+  );
+  setStatCard('sv-avg', 'ss-avg',
+    avg,
+    'per registered user',
+    false
+  );
+}
+
+function setStatCard(valId, subId, value, sub, isUp) {
+  document.getElementById(valId).textContent = value;
+  const subEl = document.getElementById(subId);
+  subEl.textContent = sub;
+  subEl.className = 'stat-sub ' + (isUp ? 'stat-up' : '');
+}
+
+function renderCharts(d) {
+  const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
+  const gridColor  = isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)';
+  const tickColor  = isDark ? '#4a4660' : '#9590a8';
+  const ttBg       = isDark ? '#16141f' : '#ffffff';
+  const ttTitle    = isDark ? '#f0eeff' : '#1a1825';
+  const ttBody     = isDark ? '#7a768f' : '#5a5570';
+  const ttBdr      = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)';
+
+  const commonOpts = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        backgroundColor: ttBg, titleColor: ttTitle,
+        bodyColor: ttBody, borderColor: ttBdr, borderWidth: 1,
+        padding: 10, cornerRadius: 8,
+      },
+    },
+    scales: {
+      x: {
+        grid: { display: false },
+        ticks: { color: tickColor, font: { size: 10, family: 'Inter' } },
+        border: { display: false },
+      },
+      y: {
+        grid: { color: gridColor },
+        ticks: { color: tickColor, font: { size: 10, family: 'Inter' }, stepSize: 1 },
+        border: { display: false },
+        beginAtZero: true,
+      },
+    },
+  };
+
+  // Destroy old charts if refreshing
+  if (userChartInst) { userChartInst.destroy(); userChartInst = null; }
+  if (msgChartInst)  { msgChartInst.destroy();  msgChartInst  = null; }
+
+  const shortLabels = d.charts.labels.map(l => l.split(',')[0]); // "Mon", "Tue" …
+
+  userChartInst = new Chart(
+    document.getElementById('userChart').getContext('2d'),
+    {
+      type: 'bar',
+      data: {
+        labels: shortLabels,
+        datasets: [{
+          label: 'New Users',
+          data: d.charts.userCounts,
+          backgroundColor: 'rgba(124,58,237,0.65)',
+          borderColor: '#7c3aed',
+          borderWidth: 0,
+          borderRadius: 5,
+          borderSkipped: false,
+        }],
+      },
+      options: commonOpts,
+    }
+  );
+
+  msgChartInst = new Chart(
+    document.getElementById('msgChart').getContext('2d'),
+    {
+      type: 'bar',
+      data: {
+        labels: d.charts.labels.map(l => l.split(',')[0]),
+        datasets: [{
+          label: 'Messages',
+          data: d.charts.msgCounts,
+          backgroundColor: 'rgba(217,119,87,0.65)',
+          borderColor: '#d97757',
+          borderWidth: 0,
+          borderRadius: 5,
+          borderSkipped: false,
+        }],
+      },
+      options: commonOpts,
+    }
+  );
+}
+
+function renderHealth(d) {
+  const s = d.system;
+  document.getElementById('healthRows').innerHTML = `
+    <div class="health-row">
+      <span class="health-indicator hi-green"></span>
+      <div class="health-row-info">
+        <div class="health-row-label">Database</div>
+        <div class="health-row-val">Connected ✓</div>
+      </div>
+    </div>
+    <div class="health-row">
+      <span class="health-indicator hi-blue"></span>
+      <div class="health-row-info">
+        <div class="health-row-label">Server Uptime</div>
+        <div class="health-row-val">${fmtUptime(s.uptime)}</div>
+      </div>
+    </div>
+    <div class="health-row">
+      <span class="health-indicator hi-orange"></span>
+      <div class="health-row-info">
+        <div class="health-row-label">Memory</div>
+        <div class="health-row-val">${s.memoryMB} MB heap / ${s.rssMB} MB RSS</div>
+      </div>
+    </div>
+    <div class="health-row">
+      <span class="health-indicator hi-purple"></span>
+      <div class="health-row-info">
+        <div class="health-row-label">Node.js Version</div>
+        <div class="health-row-val">${esc(s.nodeVersion)}</div>
+      </div>
+    </div>
+  `;
+}
+
+function renderUsersTable(users, reset) {
+  const tbody = document.getElementById('usersBody');
+  if (reset) tbody.innerHTML = '';
+
+  if (users.length === 0 && reset) {
+    tbody.innerHTML = '<tr><td colspan="4" class="empty-row">No users yet</td></tr>';
+    return;
+  }
+
+  users.forEach(u => {
+    const initial = ((u.name || u.email || '?')[0]).toUpperCase();
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><div class="avatar">${esc(initial)}</div></td>
+      <td>
+        <div class="cell-primary">${esc(u.name || '—')}</div>
+        <div class="cell-muted">${esc(u.email)}</div>
+      </td>
+      <td class="cell-muted">${fmtDate(u.createdAt)}</td>
+      <td><span class="badge">${u._count.conversations}</span></td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function renderConvsTable(convs, reset) {
+  const tbody = document.getElementById('convsBody');
+  if (reset) tbody.innerHTML = '';
+
+  if (convs.length === 0 && reset) {
+    tbody.innerHTML = '<tr><td colspan="4" class="empty-row">No conversations yet</td></tr>';
+    return;
+  }
+
+  convs.forEach(c => {
+    const title     = c.title || 'Untitled';
+    const userName  = c.user?.name  || '—';
+    const userEmail = c.user?.email || '';
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>
+        <div class="cell-primary" style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"
+             title="${esc(title)}">${esc(title)}</div>
+      </td>
+      <td>
+        <div class="cell-primary">${esc(userName)}</div>
+        <div class="cell-muted">${esc(userEmail)}</div>
+      </td>
+      <td><span class="badge">${c._count.messages}</span></td>
+      <td class="cell-muted">${fmtRelative(c.updatedAt)}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+/* ═══════════════════════════════════════
+   ERROR BANNER
+═══════════════════════════════════════ */
+function showError(msg) {
+  const el = document.getElementById('errorBanner');
+  el.textContent = msg;
+  el.classList.add('visible');
+  setTimeout(() => el.classList.remove('visible'), 6000);
+}
+
+/* ═══════════════════════════════════════
+   AUTO REFRESH (60s countdown)
+═══════════════════════════════════════ */
+function startRefreshCountdown() {
+  clearInterval(refreshCountdown);
+  let remaining = 60;
+  updateCountdownLabel(remaining);
+  refreshCountdown = setInterval(async () => {
+    remaining--;
+    if (remaining <= 0) {
+      remaining = 60;
+      await refreshDashboard();
+    } else {
+      updateCountdownLabel(remaining);
+    }
+  }, 1000);
+}
+
+function updateCountdownLabel(sec) {
+  document.getElementById('lastRefreshed').textContent =
+    `Auto-refresh in ${sec}s`;
+}
+
+function updateRefreshedLabel() {
+  // will be overwritten by countdown, but set here too
+  document.getElementById('lastRefreshed').textContent = 'Just refreshed';
+}
+
+/* ═══════════════════════════════════════
+   FORMATTING HELPERS
+═══════════════════════════════════════ */
+function esc(str) {
+  return String(str)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function fmtNum(n) {
+  return Number(n).toLocaleString('en-US');
+}
+
+function fmtDate(iso) {
+  return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+function fmtRelative(iso) {
+  const diff = Math.floor((Date.now() - new Date(iso)) / 1000);
+  if (diff < 60)   return `${diff}s ago`;
+  if (diff < 3600) return `${Math.floor(diff/60)}m ago`;
+  if (diff < 86400)return `${Math.floor(diff/3600)}h ago`;
+  return `${Math.floor(diff/86400)}d ago`;
+}
+
+function fmtUptime(sec) {
+  const h = Math.floor(sec / 3600);
+  const m = Math.floor((sec % 3600) / 60);
+  const s = sec % 60;
+  if (h > 0) return `${h}h ${m}m`;
+  if (m > 0) return `${m}m ${s}s`;
+  return `${s}s`;
+}
+
+/* ═══════════════════════════════════════
+   BOOT
+═══════════════════════════════════════ */
+init();
+</script>
+</body>
+</html>
