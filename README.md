@@ -219,8 +219,3 @@ npm run db:reset     # Wipes all data and re-migrates (careful)
 - After training, use `merge_and_convert.py` to merge the LoRA adapter and convert to GGUF format for Ollama.
 - ChromaDB vector store is auto-created when the AI service starts for the first time.
 
----
-
-## License
-
-MIT
