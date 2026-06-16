@@ -12,7 +12,7 @@ router.get('/', async (req, res) => {
       where:   { userId: req.userId },
       orderBy: { updatedAt: 'desc' },
       select: {
-        id: true, title: true, createdAt: true, updatedAt: true,
+        id: true, title: true, projectId: true, createdAt: true, updatedAt: true,
         _count: { select: { messages: true } },
       },
     });
@@ -40,7 +40,7 @@ router.post('/', async (req, res) => {
 /* ── PATCH /api/conversations/:id ── */
 router.patch('/:id', async (req, res) => {
   try {
-    const { title } = req.body;
+    const { title, projectId } = req.body;
     const conv = await prisma.conversation.findFirst({
       where: { id: req.params.id, userId: req.userId },
     });
@@ -48,7 +48,12 @@ router.patch('/:id', async (req, res) => {
 
     const updated = await prisma.conversation.update({
       where: { id: req.params.id },
-      data:  { title: (title || conv.title).slice(0, 120), updatedAt: new Date() },
+      data:  {
+        title:     (title || conv.title).slice(0, 120),
+        updatedAt: new Date(),
+        // projectId: null removes from project; undefined = no change
+        ...(projectId !== undefined && { projectId: projectId || null }),
+      },
     });
     res.json({ conversation: updated });
   } catch (err) {

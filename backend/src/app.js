@@ -2,10 +2,13 @@ require('dotenv').config();
 const express   = require('express');
 const cors      = require('cors');
 
-const authRoutes  = require('./routes/auth');
-const convRoutes  = require('./routes/conversations');
-const msgRoutes   = require('./routes/messages');
-const adminRoutes = require('./routes/admin');
+const authRoutes       = require('./routes/auth');
+const convRoutes       = require('./routes/conversations');
+const msgRoutes        = require('./routes/messages');
+const adminRoutes      = require('./routes/admin');
+const workspaceRoutes  = require('./routes/workspaces');
+const projectRoutes    = require('./routes/projects');
+const aiRoutes         = require('./routes/ai');
 
 const app = express();
 
@@ -47,6 +50,9 @@ app.use('/api/auth',                         authRoutes);
 app.use('/api/conversations',                convRoutes);
 app.use('/api/conversations/:id/messages',   msgRoutes);
 app.use('/api/admin',                        adminRoutes);
+app.use('/api/workspaces',                   workspaceRoutes);
+app.use('/api/projects',                     projectRoutes);
+app.use('/api/ai',                           aiRoutes);
 
 /* ── 404 ── */
 app.use((req, res) => {

@@ -32,3 +32,44 @@ desktop.ini
 # ── Build output ──────────────────────────────────────────────────────────────
 dist/
 build/
+
+# ── Model files (too large for GitHub) ───────────────────────────────────────
+*.gguf
+*.bin
+*.safetensors
+orion-xai-lora/
+orion-xai-checkpoints/
+
+# ── Python ────────────────────────────────────────────────────────────────────
+venv/
+ai-service/venv/
+__pycache__/
+*.pyc
+*.pyo
+ai-service/__pycache__/
+ai-service/**/__pycache__/
+
+# ── AI service vector store (auto-rebuilt on startup) ────────────────────────
+ai-service/vector_store/
+
+# ── Duplicate nested folder ───────────────────────────────────────────────────
+AIChatClone/
+
+# ── Large model tool repos ────────────────────────────────────────────────────
+llama.cpp/
+orion-xai-merged/
+
+# ── Intermediate/raw dataset files (keep only the final merged dataset) ───────
+xai_cybersec_dataset.jsonl
+xai_cybersec_dataset_v2.jsonl
+xai_cybersec_1000.jsonl
+xai_cybersec_additions.jsonl
+
+# ── Kaggle / training helper scripts ─────────────────────────────────────────
+check_kaggle_status.py
+list_kaggle_kernels.py
+kernel-metadata.json
+kaggle_push_cli.bat
+download_adapter.bat
+push_to_kaggle.py
+run_push.bat

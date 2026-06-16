@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
-  <link rel="stylesheet" href="styles.css"/>
+  <link rel="stylesheet" href="styles.css?v=3"/>
 </head>
 <body>
 
@@ -62,50 +62,84 @@
       <input type="text" id="sidebarSearch" placeholder="Search conversations…" oninput="searchConversations(this.value)"/>
     </div>
 
+    <!-- WORKSPACES SECTION (shown when logged in) -->
+    <div class="ws-section" id="wsSection" style="display:none">
+      <div class="ws-section-header">
+        <span class="ws-section-label">Workspaces</span>
+        <button class="ws-add-btn" onclick="showWsModal()" title="New workspace">
+          <svg width="11" height="11" viewBox="0 0 11 11" fill="none">
+            <path d="M5.5 1v9M1 5.5h9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </div>
+      <div class="ws-list" id="wsList"><!-- rendered by JS --></div>
+    </div>
+
+    <!-- AGENTS SECTION -->
+    <div class="agents-section" id="agentsSection">
+      <div class="agents-section-header" onclick="toggleAgentsCollapse()" style="cursor:pointer">
+        <div style="display:flex;align-items:center;gap:5px">
+          <svg class="agents-chevron" id="agentsChevron" width="10" height="10" viewBox="0 0 10 10" fill="none" style="transition:transform 0.2s;flex-shrink:0;transform:rotate(-90deg)">
+            <path d="M2 3.5l3 3 3-3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span class="agents-section-label">Agents</span>
+        </div>
+        <button class="ws-add-btn" onclick="event.stopPropagation();showAgentModal()" title="Create custom agent">
+          <svg width="11" height="11" viewBox="0 0 11 11" fill="none">
+            <path d="M5.5 1v9M1 5.5h9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </div>
+      <div class="agents-list" id="agentsList"></div>
+    </div>
+
+    <!-- CHATS SECTION LABEL -->
+    <div class="conv-section-header" id="convSectionHeader">
+      <span class="conv-section-label">Chats</span>
+    </div>
+
     <div class="conv-list" id="convList">
       <!-- populated by JS -->
     </div>
 
     <div class="sidebar-footer">
-      <!-- User info (shown when logged in) -->
-      <div class="user-info" id="userInfo" style="display:none">
+      <!-- Account row — always visible, click opens popup -->
+      <div class="account-row" id="accountRow" onclick="toggleAccountMenu(event)">
         <div class="user-avatar" id="userAvatar">?</div>
         <div class="user-details">
-          <div class="user-name"  id="userName">—</div>
-          <div class="user-email" id="userEmailDisplay">—</div>
+          <div class="user-name" id="userName">Guest</div>
+          <div class="user-email" id="userEmailDisplay"></div>
         </div>
         <span class="sync-dot" id="syncDot" title="Sync status"></span>
       </div>
 
-      <!-- Login prompt (shown when logged out) -->
-      <button class="login-prompt-btn" id="loginPromptBtn" onclick="showAuthModal('login')" style="display:none">
-        <svg width="13" height="13" viewBox="0 0 14 14" fill="none">
-          <path d="M5 2H2a1 1 0 00-1 1v8a1 1 0 001 1h3M9 10l3-3-3-3M12 7H5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        Sign in to sync chats
-      </button>
-
-      <button class="theme-btn" id="themeBtn" onclick="toggleTheme()" title="Toggle theme">
-        <span id="themeIcon">☀️</span>
-        <span id="themeLabel">Light mode</span>
-      </button>
-
-      <button class="settings-btn" onclick="openSettings()" title="API Settings">
-        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-          <circle cx="7" cy="7" r="2.2" stroke="currentColor" stroke-width="1.3"/>
-          <path d="M7 1v1.5M7 11.5V13M1 7h1.5M11.5 7H13M2.7 2.7l1.05 1.05M10.25 10.25l1.05 1.05M2.7 11.3l1.05-1.05M10.25 3.75l1.05-1.05" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
-        </svg>
-        <span>API Settings</span>
-        <span class="api-status-dot" id="apiStatusDot"></span>
-      </button>
-
-      <!-- Logout (shown when logged in) -->
-      <button class="logout-btn" id="logoutBtn" onclick="handleLogout()" style="display:none">
-        <svg width="13" height="13" viewBox="0 0 14 14" fill="none">
-          <path d="M9 2h3a1 1 0 011 1v8a1 1 0 01-1 1H9M5 10L2 7l3-3M2 7h7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        Sign out
-      </button>
+      <!-- Account popup menu -->
+      <div class="account-menu" id="accountMenu" style="display:none">
+        <!-- Sign in (guests only) -->
+        <button class="account-menu-item account-menu-signin" id="accountSignInBtn" onclick="closeAccountMenu();showAuthModal('login')" style="display:none">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path d="M5 2H2a1 1 0 00-1 1v8a1 1 0 001 1h3M9 10l3-3-3-3M12 7H5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Sign in
+        </button>
+        <div class="account-menu-divider" id="accountSignInDivider" style="display:none"></div>
+        <!-- Settings (always) -->
+        <button class="account-menu-item" onclick="closeAccountMenu();openSettings()">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <circle cx="7" cy="7" r="2.2" stroke="currentColor" stroke-width="1.3"/>
+            <path d="M7 1v1.5M7 11.5V13M1 7h1.5M11.5 7H13M2.7 2.7l1.05 1.05M10.25 10.25l1.05 1.05M2.7 11.3l1.05-1.05M10.25 3.75l1.05-1.05" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+          </svg>
+          Settings
+        </button>
+        <!-- Sign out (logged-in only) -->
+        <div class="account-menu-divider" id="accountSignOutDivider" style="display:none"></div>
+        <button class="account-menu-item account-menu-signout" id="accountSignOutBtn" onclick="closeAccountMenu();handleLogout()" style="display:none">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path d="M9 2h3a1 1 0 011 1v8a1 1 0 01-1 1H9M5 10L2 7l3-3M2 7h7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Sign out
+        </button>
+      </div>
     </div>
   </aside>
 
@@ -132,6 +166,37 @@
         <span class="model-version">MVP</span>
       </div>
       <div class="header-actions">
+        <div class="active-agent-pill" id="activeAgentPill" style="display:none"></div>
+        <button class="header-action-btn" id="compareBtn" onclick="toggleCompareMode()" title="Compare two AI models">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>
+          </svg>
+        </button>
+        <!-- Pins button -->
+        <button class="header-action-btn" id="pinsBtn" onclick="togglePinsPanel()" title="Starred messages">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+          </svg>
+          <span class="pins-badge" id="pinsBadge" style="display:none">0</span>
+        </button>
+        <!-- Export button -->
+        <div class="export-wrap" id="exportWrap">
+          <button class="header-action-btn" onclick="toggleExportMenu()" title="Export chat">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+              <polyline points="7 10 12 15 17 10"/>
+              <line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+          </button>
+          <div class="export-menu" id="exportMenu" style="display:none">
+            <button class="export-option" onclick="exportMarkdown()">
+              <span class="export-icon">📝</span> Markdown (.md)
+            </button>
+            <button class="export-option" onclick="exportPDF()">
+              <span class="export-icon">📄</span> PDF (Print)
+            </button>
+          </div>
+        </div>
         <button class="header-action-btn" onclick="toggleTheme()" title="Toggle theme">
           <span id="headerThemeIcon">☀️</span>
         </button>
@@ -142,6 +207,30 @@
         </button>
       </div>
     </header>
+
+    <!-- PINS PANEL -->
+    <div class="pins-panel" id="pinsPanel" style="display:none">
+      <div class="pins-panel-header">
+        <span class="pins-panel-title">⭐ Starred Messages</span>
+        <button class="pins-panel-close" onclick="togglePinsPanel()">✕</button>
+      </div>
+      <div class="pins-panel-body" id="pinsPanelBody"></div>
+    </div>
+
+    <!-- COMPARE BAR (shown in compare mode) -->
+    <div class="compare-bar" id="compareBar" style="display:none">
+      <span class="compare-bar-label">⚖️ Comparing</span>
+      <div class="compare-model-pick">
+        <span class="compare-model-label">Model A</span>
+        <select id="compareModelA" class="compare-model-select"></select>
+      </div>
+      <span class="compare-vs">vs</span>
+      <div class="compare-model-pick">
+        <span class="compare-model-label">Model B</span>
+        <select id="compareModelB" class="compare-model-select"></select>
+      </div>
+      <button class="compare-bar-close" onclick="toggleCompareMode()">✕ Exit Compare</button>
+    </div>
 
     <!-- CHAT AREA -->
     <div class="chat-area" id="chatArea">
@@ -240,6 +329,29 @@
       <!-- File preview strip (shows attached files before sending) -->
       <div class="file-preview-strip" id="filePreviewStrip"></div>
 
+      <!-- Paper Analyze button (shown when PDF attached) -->
+      <button class="paper-analyze-btn" id="paperAnalyzeBtn" onclick="analyzeResearchPaper()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <path d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18"/>
+        </svg>
+        🔬 Analyze as Research Paper — extract methodology, contributions, limitations &amp; future work
+      </button>
+
+      <!-- Templates Panel -->
+      <div class="templates-panel" id="templatesPanel">
+        <div class="templates-header">
+          <span class="templates-title">📚 Prompt Templates</span>
+          <input class="templates-search" id="templatesSearch" type="text" placeholder="Search templates…"/>
+          <button class="templates-close" onclick="closeTemplates()">
+            <svg width="13" height="13" viewBox="0 0 14 14" fill="none">
+              <path d="M2 2l10 10M12 2L2 12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+            </svg>
+          </button>
+        </div>
+        <div class="templates-cats" id="templatesCats"></div>
+        <div class="templates-list" id="templatesList"></div>
+      </div>
+
       <div class="input-box" id="inputBox">
         <!-- Web search toggle -->
         <button class="search-toggle-btn" id="searchToggleBtn"
@@ -258,6 +370,23 @@
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
             <path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"
                   stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+
+        <!-- Templates button -->
+        <button class="templates-btn" id="templatesBtn" onclick="toggleTemplates()" title="Prompt templates">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+            <path d="M12 2l2.09 7.91L22 12l-7.91 2.09L12 22l-2.09-7.91L2 12l7.91-2.09L12 2z"/>
+          </svg>
+        </button>
+
+        <!-- Mic button (voice input) -->
+        <button class="mic-btn" id="micBtn" onclick="toggleVoiceInput()" title="Voice input — click to speak">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/>
+            <path d="M19 10v2a7 7 0 01-14 0v-2"/>
+            <line x1="12" y1="19" x2="12" y2="23"/>
+            <line x1="8" y1="23" x2="16" y2="23"/>
           </svg>
         </button>
 
@@ -295,55 +424,170 @@
 
   </main>
 
-  <!-- SETTINGS MODAL -->
-  <div class="rename-overlay" id="settingsOverlay" onclick="closeSettings()">
-    <div class="rename-modal settings-modal" onclick="event.stopPropagation()">
-      <div class="settings-header">
-        <div class="rename-title">API Settings</div>
-        <button class="settings-close-btn" onclick="closeSettings()">
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-            <path d="M1 1l12 12M13 1L1 13" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
-          </svg>
-        </button>
+  <!-- SETTINGS BACKDROP -->
+  <div class="settings-backdrop" id="settingsBackdrop" onclick="closeSettings()"></div>
+
+  <!-- SETTINGS PANEL (slide-in from right) -->
+  <div class="settings-panel" id="settingsPanel">
+    <div class="sp-header">
+      <div class="sp-title">
+        <svg width="15" height="15" viewBox="0 0 14 14" fill="none" style="margin-right:6px;opacity:0.7">
+          <circle cx="7" cy="7" r="2.2" stroke="currentColor" stroke-width="1.3"/>
+          <path d="M7 1v1.5M7 11.5V13M1 7h1.5M11.5 7H13M2.7 2.7l1.05 1.05M10.25 10.25l1.05 1.05M2.7 11.3l1.05-1.05M10.25 3.75l1.05-1.05" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+        </svg>
+        Settings
+      </div>
+      <button class="sp-close" onclick="closeSettings()">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <path d="M1 1l12 12M13 1L1 13" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="sp-tabs">
+      <button class="sp-tab active" id="stab-btn-general" onclick="switchSettingsTab('general')">General</button>
+      <button class="sp-tab" id="stab-btn-ai"      onclick="switchSettingsTab('ai')">AI Model</button>
+      <button class="sp-tab" id="stab-btn-voice"   onclick="switchSettingsTab('voice')">🎙 Voice</button>
+      <button class="sp-tab" id="stab-btn-image"   onclick="switchSettingsTab('image')">🎨 Image</button>
+      <button class="sp-tab" id="stab-btn-search"  onclick="switchSettingsTab('search')">🌐 Search</button>
+    </div>
+
+    <div class="sp-body">
+
+      <!-- GENERAL TAB -->
+      <div class="sp-section" id="stab-general">
+        <div class="sp-group-label">Appearance</div>
+        <div class="sp-row">
+          <div class="sp-row-info">
+            <span class="sp-row-label">Theme</span>
+            <span class="sp-row-sub" id="themeSubLabel">Dark mode</span>
+          </div>
+          <button class="sp-toggle-btn" onclick="toggleTheme();updateThemeSubLabel()">Switch</button>
+        </div>
+        <div class="sp-row">
+          <div class="sp-row-info">
+            <span class="sp-row-label">Font size</span>
+            <span class="sp-row-sub">Chat message text size</span>
+          </div>
+          <select class="sp-select" id="fontSizeSelect" onchange="changeFontSize(this.value)">
+            <option value="13">Small</option>
+            <option value="15" selected>Medium</option>
+            <option value="17">Large</option>
+          </select>
+        </div>
       </div>
 
-      <label class="settings-label">AI Provider</label>
-      <select class="settings-select" id="providerSelect" onchange="updateProviderHint()">
-        <option value="groq">🆓 Groq — Llama 3 (Free, Recommended)</option>
-        <option value="openai">OpenAI (GPT-4o-mini)</option>
-        <option value="anthropic">Anthropic (Claude Haiku)</option>
-        <option value="gemini">Google Gemini (Free tier available)</option>
-      </select>
-
-      <label class="settings-label" style="margin-top:14px">API Key</label>
-      <div class="api-key-wrap">
-        <input type="password" class="rename-input api-key-input" id="apiKeyInput"
-               placeholder="Paste your API key here…"/>
-        <button class="api-key-eye" id="apiKeyEye" onclick="toggleKeyVisibility()" title="Show/hide key">👁</button>
+      <!-- AI MODEL TAB -->
+      <div class="sp-section" id="stab-ai" style="display:none">
+        <div class="sp-group-label">AI Provider</div>
+        <select class="sp-select" id="providerSelect" onchange="updateProviderHint()" style="width:100%;margin-bottom:12px">
+          <option value="groq">🆓 Groq — Llama 3 (Free, Recommended)</option>
+          <option value="ollama">🧠 Orion-XAI — Local Fine-tuned Model (Free)</option>
+          <option value="openai">OpenAI (GPT-4o-mini)</option>
+          <option value="anthropic">Anthropic (Claude Haiku)</option>
+          <option value="gemini">Google Gemini (Free tier available)</option>
+        </select>
+        <div class="sp-group-label">API Key</div>
+        <div class="api-key-wrap" style="margin-bottom:8px">
+          <input type="password" class="rename-input api-key-input" id="apiKeyInput" placeholder="Paste your API key here…"/>
+          <button class="api-key-eye" id="apiKeyEye" onclick="toggleKeyVisibility()" title="Show/hide key">👁</button>
+        </div>
+        <div class="settings-hint" id="providerHint"></div>
+        <div class="settings-status" id="settingsStatus"></div>
+        <div class="sp-actions">
+          <button class="sp-btn-ghost" onclick="clearApiKey()">Clear Key</button>
+          <button class="sp-btn-primary" onclick="saveApiKey()">Save &amp; Connect</button>
+        </div>
       </div>
 
-      <div class="settings-hint" id="providerHint"></div>
-
-      <div class="settings-status" id="settingsStatus"></div>
-
-      <!-- Web Search section -->
-      <div class="settings-divider"></div>
-      <label class="settings-label" style="margin-top:16px">🌐 Web Search API Key (Tavily)</label>
-      <div class="api-key-wrap">
-        <input type="password" class="rename-input api-key-input" id="searchKeyInput"
-               placeholder="tvly-…  (get free key at tavily.com)"/>
-        <button class="api-key-eye" id="searchKeyEye" onclick="toggleSearchKeyVisibility()" title="Show/hide key">👁</button>
+      <!-- VOICE TAB -->
+      <div class="sp-section" id="stab-voice" style="display:none">
+        <div class="sp-group-label">Voice Output</div>
+        <div class="sp-row">
+          <div class="sp-row-info">
+            <span class="sp-row-label">Read responses aloud</span>
+            <span class="sp-row-sub">Orion speaks its replies via TTS</span>
+          </div>
+          <label class="sp-switch">
+            <input type="checkbox" id="voiceOutputToggle" onchange="saveVoiceSettings()">
+            <span class="sp-switch-slider"></span>
+          </label>
+        </div>
+        <div class="sp-group-label" style="margin-top:16px">Voice</div>
+        <select class="sp-select" id="voiceSelect" onchange="saveVoiceSettings()" style="width:100%;margin-bottom:14px">
+          <option value="">Default</option>
+        </select>
+        <div class="sp-group-label">Speed</div>
+        <div class="sp-slider-row">
+          <span class="sp-slider-label">0.5×</span>
+          <input type="range" class="sp-slider" id="voiceSpeed" min="0.5" max="2" step="0.1" value="1" oninput="updateVoiceSpeedLabel();saveVoiceSettings()">
+          <span class="sp-slider-label" id="voiceSpeedLabel">1.0×</span>
+        </div>
+        <div class="sp-group-label" style="margin-top:16px">Voice Input</div>
+        <div class="sp-row">
+          <div class="sp-row-info">
+            <span class="sp-row-label">Microphone</span>
+            <span class="sp-row-sub">Click 🎙 in chat input to speak</span>
+          </div>
+        </div>
+        <button class="sp-btn-ghost" style="margin-top:12px;width:100%" onclick="testTTS()">🔊 Test Voice Output</button>
       </div>
-      <div class="settings-hint">
-        ✅ <strong>1,000 free searches/month — no credit card.</strong>
-        Get your key at <a href="https://tavily.com" target="_blank">tavily.com</a>.
-        Adds a 🌐 button to chat for live web results with citations.
+
+      <!-- IMAGE GEN TAB -->
+      <div class="sp-section" id="stab-image" style="display:none">
+        <div class="sp-group-label">DALL-E 3 Image Generation</div>
+        <div class="sp-row">
+          <div class="sp-row-info">
+            <span class="sp-row-label">Auto-detect image requests</span>
+            <span class="sp-row-sub">Triggers on "generate/draw/create image…"</span>
+          </div>
+          <label class="sp-switch">
+            <input type="checkbox" id="imageGenToggle" onchange="saveImageGenSettings()" checked>
+            <span class="sp-switch-slider"></span>
+          </label>
+        </div>
+        <div class="sp-group-label" style="margin-top:16px">Image Size</div>
+        <select class="sp-select" id="imageGenSize" onchange="saveImageGenSettings()" style="width:100%;margin-bottom:14px">
+          <option value="1024x1024">Square (1024×1024)</option>
+          <option value="1792x1024">Landscape (1792×1024)</option>
+          <option value="1024x1792">Portrait (1024×1792)</option>
+        </select>
+        <div class="sp-group-label">Style</div>
+        <select class="sp-select" id="imageGenStyle" onchange="saveImageGenSettings()" style="width:100%;margin-bottom:14px">
+          <option value="vivid">Vivid — dramatic, cinematic</option>
+          <option value="natural">Natural — realistic, subtle</option>
+        </select>
+        <div class="sp-group-label" style="margin-top:16px">OpenAI API Key (for images)</div>
+        <div class="api-key-wrap" style="margin-bottom:8px">
+          <input type="password" class="rename-input api-key-input" id="imageOpenAIKeyInput"
+                 placeholder="sk-… (your OpenAI key for DALL-E)"/>
+          <button class="api-key-eye" onclick="this.previousElementSibling.type=this.previousElementSibling.type==='password'?'text':'password'">👁</button>
+        </div>
+        <div class="sp-actions" style="margin-bottom:12px">
+          <button class="sp-btn-primary" id="imageKeySaveBtn" onclick="saveImageKey()">Save Key</button>
+        </div>
+        <div class="settings-hint">
+          If you use Groq/Gemini for chat, enter your OpenAI key here to unlock DALL-E 3 image generation independently. If your main API key is already OpenAI (starts with sk-), no need to add it again.
+        </div>
       </div>
 
-      <div class="rename-actions" style="margin-top:16px">
-        <button class="rename-cancel" onclick="clearApiKey()">Clear Key</button>
-        <button class="rename-confirm" onclick="saveApiKey()">Save &amp; Connect</button>
+      <!-- SEARCH TAB -->
+      <div class="sp-section" id="stab-search" style="display:none">
+        <div class="sp-group-label">Tavily Web Search</div>
+        <div class="api-key-wrap" style="margin-bottom:8px">
+          <input type="password" class="rename-input api-key-input" id="searchKeyInput" placeholder="tvly-… (free at tavily.com)"/>
+          <button class="api-key-eye" id="searchKeyEye" onclick="toggleSearchKeyVisibility()" title="Show/hide key">👁</button>
+        </div>
+        <div class="settings-hint">
+          ✅ <strong>1,000 free searches/month</strong> — no credit card needed.
+          Get your key at <a href="https://tavily.com" target="_blank">tavily.com</a>.
+          Enables the 🌐 web search button in chat.
+        </div>
+        <div class="sp-actions" style="margin-top:16px">
+          <button class="sp-btn-primary" onclick="saveSearchKey()">Save Search Key</button>
+        </div>
       </div>
+
     </div>
   </div>
 
@@ -425,8 +669,199 @@
     style="display:none"
     onchange="handleFileInputChange(this)"/>
 
+  <!-- WORKSPACE MODAL -->
+  <div class="modal-overlay" id="wsModalOverlay" onclick="if(event.target===this)closeWsModal()">
+    <div class="modal-card">
+      <div class="modal-header">
+        <span id="wsModalTitle">New Workspace</span>
+        <button class="modal-close-btn" onclick="closeWsModal()">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path d="M2 2l10 10M12 2L2 12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <label class="modal-label">Name</label>
+        <input class="modal-input" id="wsNameInput" type="text" placeholder="e.g. Personal, Work, Studies…"
+               maxlength="60" onkeydown="if(event.key==='Enter')submitWsModal()"/>
+        <label class="modal-label" style="margin-top:14px">Color</label>
+        <div class="color-swatches" id="wsColorSwatches"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="modal-btn-ghost" onclick="closeWsModal()">Cancel</button>
+        <button class="modal-btn-primary" onclick="submitWsModal()">Create</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROJECT MODAL -->
+  <div class="modal-overlay" id="projModalOverlay" onclick="if(event.target===this)closeProjModal()">
+    <div class="modal-card">
+      <div class="modal-header">
+        <span id="projModalTitle">New Project</span>
+        <button class="modal-close-btn" onclick="closeProjModal()">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path d="M2 2l10 10M12 2L2 12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <label class="modal-label">Name</label>
+        <input class="modal-input" id="projNameInput" type="text" placeholder="e.g. Job Search, Thesis, Side Project…"
+               maxlength="60" onkeydown="if(event.key==='Enter')submitProjModal()"/>
+        <label class="modal-label" style="margin-top:14px">Icon</label>
+        <div class="icon-picker" id="projIconPicker"></div>
+        <label class="modal-label" style="margin-top:14px">Color</label>
+        <div class="color-swatches" id="projColorSwatches"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="modal-btn-ghost" onclick="closeProjModal()">Cancel</button>
+        <button class="modal-btn-primary" onclick="submitProjModal()">Create</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MOVE TO PROJECT DROPDOWN -->
+  <div class="move-dropdown" id="moveDropdown">
+    <div class="move-dropdown-header">Move to project</div>
+    <div class="move-dropdown-list" id="moveDropdownList"></div>
+  </div>
+
+  <!-- AGENT MODAL -->
+  <div class="modal-overlay" id="agentModalOverlay" onclick="if(event.target===this)closeAgentModal()">
+    <div class="modal-card">
+      <div class="modal-header">
+        <span id="agentModalTitle">New Agent</span>
+        <button class="modal-close-btn" onclick="closeAgentModal()">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path d="M2 2l10 10M12 2L2 12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div style="display:flex;gap:10px;align-items:flex-end">
+          <div>
+            <label class="modal-label">Icon</label>
+            <input class="modal-input" id="agentIconInput" type="text" placeholder="🤖" maxlength="2"
+                   style="width:52px;text-align:center;font-size:1.4rem;padding:6px"/>
+          </div>
+          <div style="flex:1">
+            <label class="modal-label">Name</label>
+            <input class="modal-input" id="agentNameInput" type="text" placeholder="e.g. Research Assistant" maxlength="40"/>
+          </div>
+        </div>
+        <label class="modal-label" style="margin-top:12px">Short description</label>
+        <input class="modal-input" id="agentDescInput" type="text" placeholder="What does this agent specialize in?" maxlength="80"/>
+        <label class="modal-label" style="margin-top:12px">System Prompt</label>
+        <textarea class="modal-input agent-system-input" id="agentSystemInput"
+                  placeholder="Define the agent's expertise, style, and behavior…"
+                  rows="5"></textarea>
+      </div>
+      <div class="modal-footer">
+        <button class="modal-btn-ghost" onclick="closeAgentModal()">Cancel</button>
+        <button class="modal-btn-primary" onclick="submitAgentModal()">Save Agent</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CANVAS PANEL -->
+  <div class="canvas-panel" id="canvasPanel">
+
+    <!-- Resize handle -->
+    <div class="canvas-resizer" id="canvasResizer"></div>
+
+    <!-- Toolbar -->
+    <div class="canvas-toolbar">
+      <div class="canvas-toolbar-left">
+        <span class="canvas-lang-badge" id="canvasLangBadge">JS</span>
+        <span class="canvas-title" id="canvasTitle">Untitled</span>
+      </div>
+      <div class="canvas-toolbar-right">
+        <!-- View toggle: code / preview -->
+        <button class="canvas-tool-btn" id="canvasPreviewBtn" onclick="toggleCanvasPreview()" title="Toggle live preview">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/>
+          </svg>
+          Preview
+        </button>
+        <!-- Edit mode -->
+        <button class="canvas-tool-btn" id="canvasEditBtn" onclick="toggleCanvasEdit()" title="Edit content">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+          </svg>
+          Edit
+        </button>
+        <!-- Copy -->
+        <button class="canvas-tool-btn" id="canvasCopyBtn" onclick="copyCanvasContent()" title="Copy">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/>
+          </svg>
+          Copy
+        </button>
+        <!-- Download -->
+        <button class="canvas-tool-btn" onclick="downloadCanvasContent()" title="Download">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+          Download
+        </button>
+        <!-- Ask AI to revise -->
+        <button class="canvas-tool-btn canvas-tool-btn--accent" id="canvasAskBtn" onclick="askAIToRevise()" title="Ask AI to revise" style="display:none">
+          <svg width="14" height="14" viewBox="0 0 26 26" fill="none">
+            <circle cx="13" cy="13" r="13" fill="url(#clg)"/>
+            <path d="M8.5 13c0-2.49 2.01-4.5 4.5-4.5s4.5 2.01 4.5 4.5-2.01 4.5-4.5 4.5" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/>
+            <circle cx="13" cy="13" r="1.8" fill="#fff"/>
+            <defs><linearGradient id="clg" x1="0" y1="0" x2="26" y2="26"><stop stop-color="#7c3aed"/><stop offset="1" stop-color="#d97757"/></linearGradient></defs>
+          </svg>
+          Ask AI
+        </button>
+        <!-- Close -->
+        <button class="canvas-tool-btn canvas-close-btn" onclick="closeCanvas()" title="Close canvas">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Code view -->
+    <div class="canvas-code-wrap" id="canvasCodeWrap">
+      <pre class="canvas-pre" id="canvasPre"><code id="canvasCode"></code></pre>
+    </div>
+
+    <!-- Edit mode textarea -->
+    <div class="canvas-edit-wrap" id="canvasEditWrap" style="display:none">
+      <textarea class="canvas-editor" id="canvasEditor" spellcheck="false"></textarea>
+      <div class="canvas-edit-footer">
+        <span class="canvas-edit-hint">Edit content, then click "Ask AI" to send your changes back</span>
+        <button class="canvas-edit-apply-btn" onclick="applyCanvasEdit()">Apply</button>
+      </div>
+    </div>
+
+    <!-- Live HTML/JS preview iframe -->
+    <iframe class="canvas-preview-frame" id="canvasPreviewFrame"
+            sandbox="allow-scripts allow-same-origin allow-forms"
+            style="display:none"></iframe>
+
+    <!-- Ask AI bar (shown in edit mode) -->
+    <div class="canvas-ask-bar" id="canvasAskBar" style="display:none">
+      <input class="canvas-ask-input" id="canvasAskInput" type="text"
+             placeholder="e.g. Add error handling, refactor this, make it responsive…"
+             onkeydown="if(event.key==='Enter')sendCanvasRevision()"/>
+      <button class="canvas-ask-send" onclick="sendCanvasRevision()">
+        <svg width="13" height="13" viewBox="0 0 14 14" fill="none">
+          <path d="M12 7L2 2l2.5 5L2 12l10-5z" fill="currentColor"/>
+        </svg>
+      </button>
+    </div>
+
+  </div>
+
   <!-- PDF.js for text extraction -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <!-- highlight.js for syntax highlighting -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css" id="hlThemeLink"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
