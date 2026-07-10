@@ -28,6 +28,13 @@ const allowedOrigins = [
   `http://127.0.0.1:${SELF_PORT}`,
 ];
 
+// Railway (and most PaaS hosts) inject the public domain as an env var —
+// always allow it, so we don't need to hand-copy the generated URL back
+// into FRONTEND_URL after the fact.
+if (process.env.RAILWAY_PUBLIC_DOMAIN) {
+  allowedOrigins.push(`https://${process.env.RAILWAY_PUBLIC_DOMAIN}`);
+}
+
 app.use(cors({
   origin: (origin, cb) => {
     // Allow requests with no origin (e.g. curl, Postman) and known origins
