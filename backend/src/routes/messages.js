@@ -5,6 +5,15 @@ const { requireAuth } = require('../middleware/auth');
 const router = express.Router({ mergeParams: true });
 router.use(requireAuth);
 
+function safeParseAttachments(raw) {
+  try {
+    const val = JSON.parse(raw);
+    return Array.isArray(val) ? val : [];
+  } catch {
+    return [];
+  }
+}
+
 /* ── GET /api/conversations/:id/messages ── */
 router.get('/', async (req, res) => {
   try {
@@ -17,7 +26,15 @@ router.get('/', async (req, res) => {
       where:   { conversationId: req.params.id },
       orderBy: { createdAt: 'asc' },
     });
-    res.json({ messages });
+
+    // attachments is stored as a JSON-encoded string (SQLite has no native
+    // Json type) — parse it back to an array for the frontend.
+    const parsed = messages.map(m => ({
+      ...m,
+      attachments: safeParseAttachments(m.attachments),
+    }));
+
+    res.json({ messages: parsed });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Server error.' });
@@ -47,7 +64,7 @@ router.post('/', async (req, res) => {
             role:           m.role === 'ai' ? 'ai' : 'user',
             text:           String(m.text || ''),
             apiText:        m.apiText ? String(m.apiText) : null,
-            attachments:    Array.isArray(m.attachments) ? m.attachments : [],
+            attachments:    JSON.stringify(Array.isArray(m.attachments) ? m.attachments : []),
           },
         })
       )
@@ -59,7 +76,12 @@ router.post('/', async (req, res) => {
       data:  { updatedAt: new Date() },
     });
 
-    res.status(201).json({ messages: created });
+    const parsed = created.map(m => ({
+      ...m,
+      attachments: safeParseAttachments(m.attachments),
+    }));
+
+    res.status(201).json({ messages: parsed });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Server error.' });

@@ -1,6 +1,6 @@
 # Explainable AI — Orion-XAI
 
-![Node.js](https://img.shields.io/badge/Node.js-18+-green) ![Python](https://img.shields.io/badge/Python-3.10+-blue) ![Ollama](https://img.shields.io/badge/Ollama-local-orange) ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-14+-blue) ![HuggingFace](https://img.shields.io/badge/HuggingFace-SnowyIbrahim%2Forion--xai--adapter-yellow) ![License](https://img.shields.io/badge/license-MIT-lightgrey)
+![Node.js](https://img.shields.io/badge/Node.js-18+-green) ![Python](https://img.shields.io/badge/Python-3.10+-blue) ![Ollama](https://img.shields.io/badge/Ollama-local-orange) ![SQLite](https://img.shields.io/badge/SQLite-3-blue) ![HuggingFace](https://img.shields.io/badge/HuggingFace-SnowyIbrahim%2Forion--xai--adapter-yellow) ![License](https://img.shields.io/badge/license-MIT-lightgrey)
 
 This project is a full-stack AI chat application built around a custom fine-tuned language model focused on Explainable AI (XAI) and cybersecurity. The model, **orion-xai**, is based on Llama 3.2 3B Instruct and was fine-tuned using QLoRA (4-bit NF4) on a dataset of **4,870 instruction examples** across 9 specialised datasets covering SHAP, LIME, Anchors, SOC workflows, MITRE ATT&CK, incident response, trustworthy AI, and LLM reasoning chains.
 
@@ -8,6 +8,12 @@ This work is part of the **AI-REASON** project (AI-assisted Reliable and Explain
 
 The trained LoRA adapter is publicly available on HuggingFace:
 **[SnowyIbrahim/orion-xai-adapter](https://huggingface.co/SnowyIbrahim/orion-xai-adapter)**
+
+### 🚀 Live Demo
+
+**[<TODO: paste your Railway URL here after deploying>]()**
+
+The hosted demo runs chat through Groq's free cloud Llama models — fast, reliable, no setup needed. The custom **orion-xai** fine-tuned model runs via Ollama and only works when you run the project locally (see "How to run" below); the live demo can't host it without a GPU-backed server.
 
 ---
 
@@ -91,7 +97,7 @@ ollama run orion-xai "Explain SHAP values for IDS detection"
 | Layer | Technology |
 |---|---|
 | Frontend | HTML, CSS, JavaScript |
-| Backend | Node.js, Express, Prisma, PostgreSQL |
+| Backend | Node.js, Express, Prisma, SQLite |
 | AI Service | Python, FastAPI, ChromaDB, sentence-transformers |
 | Model | Llama 3.2 3B fine-tuned with QLoRA, served via Ollama |
 | Fine-tuning | Unsloth + TRL SFTTrainer on Kaggle T4 GPU |
@@ -161,14 +167,14 @@ ollama create orion-xai -f Modelfile
 ```bash
 cd backend
 cp .env.example .env
-# Fill in DATABASE_URL, JWT_SECRET, JWT_REFRESH_SECRET
+# Fill in JWT_SECRET, JWT_REFRESH_SECRET (DATABASE_URL is already set to SQLite)
 
 npm install
 npm run db:migrate
 npm start
 ```
 
-Backend runs at `http://localhost:3001`.
+Backend runs at `http://localhost:3001` and also serves the frontend directly.
 
 ### 3. AI Service (Python FastAPI)
 
@@ -184,7 +190,9 @@ Service runs at `http://localhost:8000`.
 
 ### 4. Frontend
 
-Open `index.html` with VS Code Live Server on port 5500.
+Open **http://localhost:3001** in your browser — the backend serves `index.html` and everything else from `backend/public` directly, no extra step needed.
+
+(If you prefer live-reload while editing the root-level HTML/JS/CSS files, you can still open `index.html` with VS Code Live Server on port 5500 — `script.js`/`admin.html` auto-detect that and point at `localhost:3001` for the API.)
 
 ---
 
@@ -192,13 +200,15 @@ Open `index.html` with VS Code Live Server on port 5500.
 
 **backend/.env:**
 ```
-DATABASE_URL="postgresql://postgres:yourpassword@localhost:5432/orionai"
+DATABASE_URL="file:./dev.db"
 JWT_SECRET="long-random-string"
 JWT_REFRESH_SECRET="another-long-random-string"
 PORT=3001
 FRONTEND_URL=http://127.0.0.1:5500
 ADMIN_EMAILS=you@example.com
 ```
+
+> On Railway, point `DATABASE_URL` at a mounted Volume (e.g. `file:/data/orion.db`) so the SQLite file survives redeploys.
 
 **ai-service/.env:**
 ```
@@ -227,3 +237,5 @@ AI_SERVICE_PORT=8000
 - The Kaggle training notebook (`orion_xai_kaggle_train.ipynb`) includes all fixes for Unsloth + TRL 0.24.0 compatibility.
 - ChromaDB vector store is auto-created when the AI service starts for the first time.
 - All `.env` files and `.gguf` files are in `.gitignore`.
+- `backend/public/` is a copy of the root-level `index.html`, `script.js`, `styles.css`, `landing.html`, `career.html`, and `admin.html` — it's what gets deployed. If you edit the root copies, re-run `cp index.html script.js styles.css landing.html career.html admin.html backend/public/` (from the repo root) before deploying so the served version stays in sync.
+- Orion-XAI (the fine-tuned model) requires Ollama running locally — it isn't reachable on the hosted demo. The live demo and the signed-in chat flow both default to Groq's free cloud Llama.

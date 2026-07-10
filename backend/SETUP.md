@@ -3,28 +3,12 @@
 ## Prerequisites
 
 - **Node.js** v18 or later — [nodejs.org](https://nodejs.org)
-- **PostgreSQL** v14 or later — [postgresql.org](https://www.postgresql.org/download/)
+
+That's it — the database is SQLite, a single local file, so there's nothing else to install or configure.
 
 ---
 
-## 1. Install PostgreSQL & Create the Database
-
-After installing PostgreSQL, open a terminal and run:
-
-```bash
-# Connect as the postgres superuser
-psql -U postgres
-
-# Inside psql, create the database and exit
-CREATE DATABASE orionai;
-\q
-```
-
-> On Windows you can also use **pgAdmin** — just create a database named `orionai`.
-
----
-
-## 2. Configure Environment Variables
+## 1. Configure Environment Variables
 
 Copy the example file and fill it in:
 
@@ -36,7 +20,7 @@ cp .env.example .env
 Open `backend/.env` and set:
 
 ```
-DATABASE_URL="postgresql://postgres:YOUR_PASSWORD@localhost:5432/orionai"
+DATABASE_URL="file:./dev.db"
 JWT_SECRET="change-this-to-a-long-random-string"
 JWT_REFRESH_SECRET="another-long-random-string-different-from-above"
 PORT=3001
@@ -44,12 +28,11 @@ FRONTEND_URL=http://127.0.0.1:5500
 ```
 
 > **Tips:**
-> - Replace `YOUR_PASSWORD` with your PostgreSQL password.
 > - Generate secrets with: `node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"`
 
 ---
 
-## 3. Install Dependencies
+## 2. Install Dependencies
 
 ```bash
 cd backend
@@ -58,9 +41,9 @@ npm install
 
 ---
 
-## 4. Run Database Migrations
+## 3. Run Database Migrations
 
-This creates the `User`, `Conversation`, and `Message` tables:
+This creates the SQLite file (`dev.db`) plus the `User`, `Conversation`, and `Message` tables:
 
 ```bash
 npm run db:migrate
@@ -70,7 +53,7 @@ When prompted for a migration name, type something like `init`.
 
 ---
 
-## 5. Start the Backend
+## 4. Start the Backend
 
 ```bash
 npm run dev
@@ -79,7 +62,7 @@ npm run dev
 You should see:
 
 ```
-✓ PostgreSQL connected
+✓ Database connected (SQLite)
 🌟 Orion AI Backend running at http://localhost:3001
 ```
 
@@ -92,9 +75,11 @@ curl http://localhost:3001/health
 
 ---
 
-## 6. Start the Frontend
+## 5. Start the Frontend
 
-Open `AIChatClone/index.html` with Live Server (VS Code extension) on port 5500.
+The backend now serves the frontend itself from `backend/public` — just open **http://localhost:3001** in your browser and you're done.
+
+If you'd rather use Live Server (VS Code extension) on port 5500 for faster iteration on the root-level HTML/JS files, that still works — `script.js` and `admin.html` auto-detect port 5500/5501 and point at `localhost:3001` for the API.
 
 Then click **"Sign in to sync chats"** in the sidebar to create an account.
 
@@ -113,7 +98,7 @@ Then click **"Sign in to sync chats"** in the sidebar to create an account.
 
 ---
 
-## 7. Enable Admin Dashboard
+## 6. Enable Admin Dashboard
 
 1. Open `backend/.env` and set your email in `ADMIN_EMAILS`:
    ```

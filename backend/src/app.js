@@ -1,4 +1,5 @@
 require('dotenv').config();
+const path      = require('path');
 const express   = require('express');
 const cors      = require('cors');
 
@@ -12,12 +13,19 @@ const aiRoutes         = require('./routes/ai');
 
 const app = express();
 
-/* ── CORS ── */
+/* ── CORS ──
+   Now that the backend serves the frontend itself (see below), the browser
+   sends Origin: http://localhost:<PORT> for same-origin requests too — that
+   must always be allowed, in addition to the Live Server dev ports and
+   whatever FRONTEND_URL is set to (e.g. your Railway domain in prod). ── */
+const SELF_PORT = process.env.PORT || 3001;
 const allowedOrigins = [
   process.env.FRONTEND_URL || 'http://127.0.0.1:5500',
   'http://localhost:5500',
   'http://127.0.0.1:5501',
   'http://localhost:5501',
+  `http://localhost:${SELF_PORT}`,
+  `http://127.0.0.1:${SELF_PORT}`,
 ];
 
 app.use(cors({
@@ -54,8 +62,16 @@ app.use('/api/workspaces',                   workspaceRoutes);
 app.use('/api/projects',                     projectRoutes);
 app.use('/api/ai',                           aiRoutes);
 
-/* ── 404 ── */
-app.use((req, res) => {
+/* ── Static frontend ──────────────────────────────────────────────────────
+   Serves index.html, script.js, styles.css, landing.html, career.html and
+   admin.html from backend/public. This lets one Railway service host both
+   the API and the UI on the same origin — no CORS, no separate frontend
+   deploy. Locally you can still use Live Server on 5500 if you prefer;
+   script.js/admin.html auto-detect that and point at localhost:3001. ── */
+app.use(express.static(path.join(__dirname, '..', 'public')));
+
+/* ── 404 (API routes only — static assets are handled above) ── */
+app.use('/api', (req, res) => {
   res.status(404).json({ error: `Route ${req.method} ${req.path} not found.` });
 });
 

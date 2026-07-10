@@ -4667,21 +4667,3 @@ function _dlImage(url) {
     return _origSend.apply(this, arguments);
   };
 })();
-
-      const conv = getActive();
-      if (!conv) return;
-
-      const userMsg = { role: 'user', text, apiText: text, attachments: [], ts: Date.now() };
-      conv.messages.push(userMsg);
-      if (!isBackendMode) save();
-      _pendingUserMsg = userMsg;
-
-      appendMsgDOM(userMsg);
-      scrollBottom(true);
-      await handleImageGenRequest(text, conv.id);
-      return;
-    }
-
-    return _origSend.call(this);
-  };
-})();

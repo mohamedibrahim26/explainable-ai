@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Career Architect — Orion AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --accent:  #7c3aed;
+      --accent2: #d97757;
+      --accentL: #9d5ff0;
+      --radius:  14px;
+    }
+    [data-theme="dark"] {
+      --bg:      #0a0a0d;
+      --surf:    #111117;
+      --surf2:   #18181f;
+      --surf3:   #1f1f28;
+      --bdr:     rgba(255,255,255,0.07);
+      --bdr2:    rgba(255,255,255,0.13);
+      --t1:      #f0eeff;
+      --t2:      #9d9ab8;
+      --t3:      #6b6882;
+    }
+    [data-theme="light"] {
+      --bg:      #f5f4fb;
+      --surf:    #ffffff;
+      --surf2:   #f0eeff;
+      --surf3:   #e8e5f5;
+      --bdr:     rgba(0,0,0,0.07);
+      --bdr2:    rgba(0,0,0,0.13);
+      --t1:      #1a1825;
+      --t2:      #5a5570;
+      --t3:      #9590a8;
+    }
+
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--t1);min-height:100vh;line-height:1.6}
+    button{font-family:inherit;cursor:pointer}
+    a{text-decoration:none}
+
+    /* ── NAV ── */
+    nav{position:fixed;top:0;left:0;right:0;height:56px;background:var(--surf);border-bottom:1px solid var(--bdr);display:flex;align-items:center;padding:0 24px;gap:10px;z-index:100}
+    .nav-logo{display:flex;align-items:center;gap:8px;font-weight:700;font-size:.95rem;color:var(--t1)}
+    .nav-orb{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,#7c3aed,#d97757);display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:800;color:#fff;flex-shrink:0}
+    .nav-pill{font-size:11px;padding:3px 10px;border-radius:20px;background:rgba(124,58,237,.15);color:var(--accent);font-weight:600;letter-spacing:.02em}
+    .nav-spacer{flex:1}
+    .nav-back{display:flex;align-items:center;gap:6px;color:var(--t2);font-size:.85rem;padding:6px 12px;border-radius:8px;border:1px solid var(--bdr);background:transparent;transition:background .15s;white-space:nowrap}
+    .nav-back:hover{background:var(--surf2);color:var(--t1)}
+    .nav-back svg{flex-shrink:0}
+
+    /* ── LAYOUT ── */
+    main{padding-top:56px;min-height:100vh}
+
+    /* ════════════════════════════
+       SELECTOR SCREEN
+    ════════════════════════════ */
+    #selectorScreen{max-width:920px;margin:0 auto;padding:52px 24px 80px}
+
+    .hero-eyebrow{text-align:center;font-size:.8rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);margin-bottom:14px}
+    .hero-title{text-align:center;font-size:2.4rem;font-weight:700;line-height:1.2;margin-bottom:14px}
+    .hero-title span{background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+    .hero-sub{text-align:center;color:var(--t2);font-size:1rem;max-width:520px;margin:0 auto 40px}
+
+    /* Search */
+    .search-wrap{position:relative;max-width:520px;margin:0 auto 40px}
+    .search-ic{position:absolute;left:15px;top:50%;transform:translateY(-50%);color:var(--t3);pointer-events:none}
+    .search-input{width:100%;padding:13px 16px 13px 44px;background:var(--surf);border:1.5px solid var(--bdr2);border-radius:12px;color:var(--t1);font-size:.95rem;font-family:inherit;outline:none;transition:border .2s,box-shadow .2s}
+    .search-input::placeholder{color:var(--t3)}
+    .search-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(124,58,237,.15)}
+
+    /* Section label */
+    .sec-label{font-size:.72rem;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--t3);margin:0 0 10px}
+
+    /* Career grid */
+    .career-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin-bottom:6px}
+    .c-card{background:var(--surf);border:1.5px solid var(--bdr);border-radius:12px;padding:14px 13px;cursor:pointer;transition:all .15s;text-align:left}
+    .c-card:hover{border-color:var(--bdr2);background:var(--surf2);transform:translateY(-1px)}
+    .c-card.sel{border-color:var(--accent);background:rgba(124,58,237,.09);box-shadow:0 0 0 3px rgba(124,58,237,.12)}
+    .c-icon{font-size:1.75rem;margin-bottom:8px;display:block;line-height:1}
+    .c-name{font-size:.84rem;font-weight:600;color:var(--t1);margin-bottom:2px;line-height:1.3}
+    .c-cat{font-size:.7rem;color:var(--t3)}
+
+    /* Generate button */
+    .gen-wrap{text-align:center;margin-top:36px}
+    .gen-btn{display:inline-flex;align-items:center;gap:10px;padding:14px 36px;background:linear-gradient(135deg,var(--accent),var(--accentL));color:#fff;border:none;border-radius:12px;font-size:1rem;font-weight:600;transition:all .2s;opacity:.45;pointer-events:none}
+    .gen-btn.on{opacity:1;pointer-events:all}
+    .gen-btn.on:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(124,58,237,.38)}
+    .gen-hint{font-size:.82rem;color:var(--t3);margin-top:10px;height:18px}
+
+    /* ════════════════════════════
+       GENERATING SCREEN
+    ════════════════════════════ */
+    #generatingScreen{max-width:760px;margin:0 auto;padding:64px 24px;display:none}
+    .gscreen-top{text-align:center;margin-bottom:36px}
+    .gscreen-emoji{font-size:3.2rem;line-height:1;margin-bottom:12px}
+    .gscreen-title{font-size:1.5rem;font-weight:700;margin-bottom:8px}
+    .gscreen-status{display:inline-flex;align-items:center;gap:8px;color:var(--t2);font-size:.9rem}
+    .pulse-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);animation:pulse 1.2s ease-in-out infinite}
+    @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.45;transform:scale(.75)}}
+
+    /* pills */
+    .pill-row{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-bottom:22px}
+    .spill{font-size:11px;padding:4px 11px;border-radius:20px;background:var(--surf2);color:var(--t3);transition:all .3s}
+    .spill.act{background:rgba(124,58,237,.15);color:var(--accent)}
+    .spill.done{background:rgba(34,197,94,.12);color:#22c55e}
+
+    /* stream box */
+    .stream-box{background:var(--surf);border:1px solid var(--bdr);border-radius:14px;padding:22px 24px;max-height:380px;overflow-y:auto;font-size:.82rem;line-height:1.75;color:var(--t2);white-space:pre-wrap;font-family:'JetBrains Mono','SF Mono','Fira Code',monospace;scroll-behavior:smooth}
+    .s-cursor{display:inline-block;width:7px;height:14px;background:var(--accent);animation:blink 1s steps(2) infinite;vertical-align:text-bottom;margin-left:2px}
+    @keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+
+    /* ════════════════════════════
+       ROADMAP SCREEN
+    ════════════════════════════ */
+    #roadmapScreen{max-width:900px;margin:0 auto;padding:36px 24px 80px;display:none}
+
+    /* header */
+    .rm-hero{display:flex;align-items:flex-start;gap:20px;padding:24px 26px;background:linear-gradient(135deg,rgba(124,58,237,.11),rgba(217,119,87,.07));border:1px solid rgba(124,58,237,.22);border-radius:16px;margin-bottom:24px}
+    .rm-emoji{font-size:3.2rem;line-height:1;flex-shrink:0;margin-top:2px}
+    .rm-meta h1{font-size:1.75rem;font-weight:700;margin-bottom:8px}
+    .rm-meta p{color:var(--t2);font-size:.9rem;line-height:1.65}
+
+    /* actions */
+    .rm-actions{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:28px}
+    .abtn{display:inline-flex;align-items:center;gap:7px;padding:9px 18px;border-radius:10px;font-size:.86rem;font-weight:500;border:1.5px solid var(--bdr2);background:var(--surf);color:var(--t1);transition:all .15s}
+    .abtn:hover{background:var(--surf2)}
+    .abtn.primary{background:linear-gradient(135deg,var(--accent),var(--accentL));color:#fff;border-color:transparent}
+    .abtn.primary:hover{box-shadow:0 4px 18px rgba(124,58,237,.32)}
+
+    /* section cards */
+    .sc{background:var(--surf);border:1px solid var(--bdr);border-radius:14px;padding:20px 22px;margin-bottom:12px;animation:fadeUp .4s ease both}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+    .sc-head{display:flex;align-items:center;gap:10px;font-size:.94rem;font-weight:600;color:var(--t1);margin-bottom:14px}
+    .sc-ico{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:.95rem;flex-shrink:0}
+    .sc-body{color:var(--t2);font-size:.88rem;line-height:1.7}
+
+    /* phases */
+    .phase-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:10px}
+    .phase-col{border-radius:10px;padding:14px 15px;background:var(--surf2)}
+    .phase-col:nth-child(1){border-left:3px solid var(--accent)}
+    .phase-col:nth-child(2){border-left:3px solid #06b6d4}
+    .phase-col:nth-child(3){border-left:3px solid #10b981}
+    .phase-col:nth-child(4){border-left:3px solid var(--accent2)}
+    .ph-name{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;margin-bottom:3px}
+    .phase-col:nth-child(1) .ph-name{color:var(--accent)}
+    .phase-col:nth-child(2) .ph-name{color:#06b6d4}
+    .phase-col:nth-child(3) .ph-name{color:#10b981}
+    .phase-col:nth-child(4) .ph-name{color:var(--accent2)}
+    .ph-dur{font-size:.7rem;color:var(--t3);margin-bottom:8px}
+    .ph-body{font-size:.82rem;color:var(--t2);line-height:1.6}
+
+    /* skill badges */
+    .badge-cloud{display:flex;flex-wrap:wrap;gap:7px}
+    .sbadge{padding:4px 13px;border-radius:20px;font-size:.79rem;font-weight:500}
+    .sbadge.tech{background:rgba(124,58,237,.12);color:#a87ef5}
+    .sbadge.soft{background:rgba(217,119,87,.12);color:#d97757}
+    .skill-sub{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--t3);margin:0 0 8px}
+
+    /* certs */
+    .cert-list{display:flex;flex-direction:column;gap:8px}
+    .cert-row{display:flex;align-items:center;gap:10px;padding:9px 12px;background:var(--surf2);border-radius:8px;font-size:.86rem;color:var(--t2)}
+    .cert-dot{width:8px;height:8px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));flex-shrink:0}
+
+    /* projects */
+    .proj-list{display:flex;flex-direction:column;gap:10px}
+    .proj-row{display:flex;gap:12px;padding:12px 14px;background:var(--surf2);border-radius:10px}
+    .proj-num{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,var(--accent),var(--accentL));color:#fff;font-size:.78rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .proj-body strong{display:block;font-size:.86rem;color:var(--t1);margin-bottom:3px;line-height:1.35}
+    .proj-body span{font-size:.81rem;color:var(--t3);line-height:1.5}
+
+    /* resources */
+    .res-list{display:flex;flex-direction:column;gap:8px}
+    .res-row{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;background:var(--surf2);border-radius:8px;font-size:.86rem;color:var(--t2);line-height:1.5}
+    .res-ico{font-size:1.1rem;flex-shrink:0;margin-top:1px}
+
+    /* salary */
+    .salary-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px}
+    .sal-card{background:var(--surf2);border-radius:10px;padding:14px 16px;text-align:center}
+    .sal-lv{font-size:.7rem;text-transform:uppercase;letter-spacing:.07em;color:var(--t3);margin-bottom:6px;font-weight:600}
+    .sal-range{font-size:.95rem;font-weight:600;color:var(--t1)}
+
+    /* weekly plan */
+    .week-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(185px,1fr));gap:10px}
+    .wk-card{background:var(--surf2);border-radius:10px;padding:14px 15px}
+    .wk-lbl{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--accent);margin-bottom:8px}
+    .wk-body{font-size:.82rem;color:var(--t2);line-height:1.6}
+
+    /* markdown inside sc-body */
+    .sc-body ul{padding-left:16px;margin:6px 0}
+    .sc-body li{margin-bottom:4px}
+    .sc-body strong{color:var(--t1)}
+    .sc-body code{background:var(--surf2);padding:1px 6px;border-radius:4px;font-size:.83em;font-family:'JetBrains Mono',monospace}
+
+    /* error */
+    .err-card{background:rgba(239,68,68,.07);border:1px solid rgba(239,68,68,.2);border-radius:12px;padding:24px;text-align:center;color:#f87171}
+    .err-card h3{margin-bottom:8px;font-size:1rem}
+    .err-card p{font-size:.85rem;opacity:.85;margin-bottom:16px}
+
+    /* Responsive */
+    @media(max-width:620px){
+      .hero-title{font-size:1.75rem}
+      .career-grid{grid-template-columns:repeat(2,1fr)}
+      .phase-grid,.week-grid{grid-template-columns:1fr}
+      .salary-grid{grid-template-columns:repeat(2,1fr)}
+    }
+
+    /* print */
+    @media print{
+      nav,.rm-actions{display:none!important}
+      .sc{break-inside:avoid;border:1px solid #ddd}
+      body{background:#fff;color:#000}
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">
+    <div class="nav-orb">O</div>
+    Orion AI
+  </div>
+  <span class="nav-pill">Career Architect</span>
+  <div class="nav-spacer"></div>
+  <a href="index.html" class="nav-back">
+    <svg width="13" height="13" viewBox="0 0 14 14" fill="none"><path d="M9 2L4 7l5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    Back to Chat
+  </a>
+</nav>
+
+<main>
+
+<!-- ════ SCREEN 1 — SELECTOR ════ -->
+<div id="selectorScreen">
+  <p class="hero-eyebrow">Powered by Orion AI</p>
+  <h1 class="hero-title">Your <span>AI Career Architect</span></h1>
+  <p class="hero-sub">Pick a career and Orion will generate your complete personalized roadmap — phases, skills, projects, certifications, salary, and a 30-day action plan.</p>
+
+  <div class="search-wrap">
+    <svg class="search-ic" width="16" height="16" viewBox="0 0 16 16" fill="none">
+      <circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.4"/>
+      <path d="M11 11l3 3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+    </svg>
+    <input class="search-input" id="customInput" type="text"
+           placeholder="Or type any career (e.g. Robotics Engineer, Nurse Practitioner…)"
+           oninput="onSearchType()" onkeydown="if(event.key==='Enter')tryGenerate()"/>
+  </div>
+
+  <p class="sec-label">Technology</p>
+  <div class="career-grid" id="g-tech"></div>
+
+  <p class="sec-label" style="margin-top:20px">Engineering & Science</p>
+  <div class="career-grid" id="g-eng"></div>
+
+  <p class="sec-label" style="margin-top:20px">Healthcare, Business & Creative</p>
+  <div class="career-grid" id="g-biz"></div>
+
+  <div class="gen-wrap">
+    <button class="gen-btn" id="genBtn" onclick="tryGenerate()">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1v14M1 8h14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      Generate My Roadmap
+    </button>
+    <p class="gen-hint" id="genHint"></p>
+  </div>
+</div>
+
+<!-- ════ SCREEN 2 — GENERATING ════ -->
+<div id="generatingScreen">
+  <div class="gscreen-top">
+    <div class="gscreen-emoji" id="gEmoji">💻</div>
+    <div class="gscreen-title" id="gTitle">Software Engineer</div>
+    <div class="gscreen-status">
+      <span class="pulse-dot"></span>
+      <span id="gStatusTxt">Generating your personalised roadmap…</span>
+    </div>
+  </div>
+
+  <div class="pill-row" id="pillRow"></div>
+
+  <div class="stream-box" id="streamBox">
+    <span id="streamTxt"></span><span class="s-cursor" id="sCursor"></span>
+  </div>
+</div>
+
+<!-- ════ SCREEN 3 — ROADMAP ════ -->
+<div id="roadmapScreen">
+  <div class="rm-hero">
+    <div class="rm-emoji" id="rmEmoji">💻</div>
+    <div class="rm-meta">
+      <h1 id="rmTitle">Career</h1>
+      <p id="rmOverview"></p>
+    </div>
+  </div>
+
+  <div class="rm-actions">
+    <button class="abtn primary" onclick="chatAbout()">💬 Chat with Orion about this career</button>
+    <button class="abtn" onclick="window.print()">🖨 Print</button>
+    <button class="abtn" onclick="copyRoadmap(this)">📋 Copy roadmap</button>
+    <button class="abtn" onclick="startOver()">← New career</button>
+  </div>
+
+  <div id="rmCards"></div>
+</div>
+
+</main>
+
+<script>
+/* ── Theme ── */
+document.documentElement.setAttribute('data-theme', localStorage.getItem('orion_theme') || 'dark');
+
+/* ── State ── */
+let sel      = null;   // { title, icon }
+let fullText = '';
+let ctrl     = null;
+
+/* ── Career data ── */
+const CAREERS = {
+  tech: [
+    { icon:'💻', title:'Software Engineer',       cat:'Technology' },
+    { icon:'🤖', title:'AI / ML Engineer',         cat:'Technology' },
+    { icon:'🔐', title:'Cybersecurity Analyst',    cat:'Technology' },
+    { icon:'☁️', title:'Cloud / DevOps Engineer',  cat:'Technology' },
+    { icon:'📊', title:'Data Scientist',           cat:'Technology' },
+    { icon:'🌐', title:'Full-Stack Developer',      cat:'Technology' },
+    { icon:'📱', title:'Mobile Developer',          cat:'Technology' },
+    { icon:'🎮', title:'Game Developer',           cat:'Technology' },
+  ],
+  eng: [
+    { icon:'✈️', title:'Aerospace Engineer',  cat:'Engineering' },
+    { icon:'⚡', title:'Electrical Engineer', cat:'Engineering' },
+    { icon:'🏗️', title:'Civil Engineer',      cat:'Engineering' },
+    { icon:'🤖', title:'Robotics Engineer',   cat:'Engineering' },
+    { icon:'🔬', title:'Research Scientist',  cat:'Science'     },
+    { icon:'🔋', title:'Energy Engineer',     cat:'Engineering' },
+  ],
+  biz: [
+    { icon:'🏥', title:'Medical Doctor',        cat:'Healthcare' },
+    { icon:'🧬', title:'Biomedical Engineer',   cat:'Healthcare' },
+    { icon:'🎨', title:'UX / UI Designer',      cat:'Creative'  },
+    { icon:'📈', title:'Product Manager',       cat:'Business'  },
+    { icon:'💰', title:'Financial Analyst',     cat:'Finance'   },
+    { icon:'⚖️', title:'Lawyer',                cat:'Law'       },
+  ]
+};
+
+const PILL_KEYS = ['Overview','Why This','Phase 1','Phase 2','Phase 3','Phase 4','Skills','Education','Projects','Resources','Salary','30-Day'];
+
+/* ── Build grids ── */
+function buildGrid(id, list) {
+  document.getElementById(id).innerHTML = list.map(c => `
+    <div class="c-card" onclick="pickCareer('${esc(c.title)}','${c.icon}',this)">
+      <span class="c-icon">${c.icon}</span>
+      <div class="c-name">${esc(c.title)}</div>
+      <div class="c-cat">${c.cat}</div>
+    </div>`).join('');
+}
+buildGrid('g-tech', CAREERS.tech);
+buildGrid('g-eng',  CAREERS.eng);
+buildGrid('g-biz',  CAREERS.biz);
+
+/* init pills */
+document.getElementById('pillRow').innerHTML =
+  PILL_KEYS.map(k => `<span class="spill" data-k="${k}">${k}</span>`).join('');
+
+/* ── Selection ── */
+function pickCareer(title, icon, el) {
+  sel = { title, icon };
+  document.querySelectorAll('.c-card').forEach(c => c.classList.remove('sel'));
+  el.classList.add('sel');
+  document.getElementById('customInput').value = '';
+  refreshBtn();
+}
+
+function onSearchType() {
+  const v = document.getElementById('customInput').value.trim();
+  sel = v ? { title: v, icon: '🌟' } : null;
+  document.querySelectorAll('.c-card').forEach(c => c.classList.remove('sel'));
+  refreshBtn();
+}
+
+function refreshBtn() {
+  const btn  = document.getElementById('genBtn');
+  const hint = document.getElementById('genHint');
+  if (sel) {
+    btn.classList.add('on');
+    hint.textContent = `Selected: ${sel.icon} ${sel.title}`;
+  } else {
+    btn.classList.remove('on');
+    hint.textContent = '';
+  }
+}
+
+function tryGenerate() {
+  if (sel) generate();
+}
+
+/* ── Generate ── */
+async function generate() {
+  if (!sel) return;
+  const apiKey  = localStorage.getItem('orion_api_key')  || '';
+  const provider = localStorage.getItem('orion_provider') || 'groq';
+
+  if (!apiKey) {
+    alert('No API key found.\n\nOpen the main chat, click API Settings, and add your key first.');
+    return;
+  }
+
+  showScreen('generatingScreen');
+  document.getElementById('gEmoji').textContent     = sel.icon;
+  document.getElementById('gTitle').textContent     = sel.title;
+  document.getElementById('gStatusTxt').textContent = 'Generating your personalised roadmap…';
+  document.getElementById('streamTxt').textContent  = '';
+  document.getElementById('sCursor').style.display  = 'inline-block';
+  document.querySelectorAll('.spill').forEach(p => p.classList.remove('act','done'));
+  fullText = '';
+  ctrl     = new AbortController();
+
+  const SYS = `You are Orion's Career Architect — an expert career advisor who creates comprehensive, actionable roadmaps for students and professionals.
+
+Generate a detailed career roadmap for: ${sel.title}
+
+Use EXACTLY these section headers (## prefix, on their own line):
+
+## Career Overview
+## Why This Career
+## Phase 1 — Foundation (Months 1–6)
+## Phase 2 — Skill Building (Months 7–18)
+## Phase 3 — First Role & Growth (Years 2–3)
+## Phase 4 — Expertise & Leadership (Years 4+)
+## Technical Skills
+## Soft Skills
+## Education & Degrees
+## Certifications
+## Projects to Build
+## Free Learning Resources
+## Salary Ranges
+## Job Market Outlook
+## 30-Day Quick Start
+
+Rules:
+- Be specific: use real tool/technology names, real certification names, real resource names.
+- Phase sections: use bullet points starting with –
+- Technical Skills and Soft Skills: comma-separated list on one or two lines
+- Projects to Build: use "### Project N: Title" then a description line
+- Salary Ranges: use format  Entry: $X–$Y | Mid: $X–$Y | Senior: $X–$Y | Lead: $X–$Y
+- 30-Day Quick Start: use "Week 1:", "Week 2:", "Week 3:", "Week 4:" as labels`;
+
+  const USR = `Create a complete career roadmap for: ${sel.title}`;
+
+  try {
+    if (provider === 'groq') {
+      await streamCompat('https://api.groq.com/openai/v1/chat/completions','llama-3.3-70b-versatile', apiKey, SYS, USR);
+    } else if (provider === 'openai') {
+      await streamCompat('https://api.openai.com/v1/chat/completions','gpt-4o-mini', apiKey, SYS, USR);
+    } else if (provider === 'anthropic') {
+      await streamAnthropic(apiKey, SYS, USR);
+    } else if (provider === 'gemini') {
+      await callGemini(apiKey, SYS, USR);
+    }
+    finish();
+  } catch (err) {
+    if (err.name === 'AbortError') return;
+    document.getElementById('streamBox').innerHTML = `
+      <div class="err-card">
+        <h3>⚠️ Generation failed</h3>
+        <p>${esc(err.message)}</p>
+        <button class="abtn" onclick="startOver()">← Try again</button>
+      </div>`;
+    document.getElementById('sCursor').style.display = 'none';
+  }
+}
+
+/* ── Streaming API implementations ── */
+async function streamCompat(url, model, key, sys, user) {
+  const res = await fetch(url, {
+    method: 'POST', signal: ctrl.signal,
+    headers: { 'Authorization': `Bearer ${key}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model, stream: true, max_tokens: 4096,
+      messages: [{ role:'system', content:sys }, { role:'user', content:user }]
+    })
+  });
+  if (!res.ok) { const e = await res.json().catch(()=>({})); throw new Error(e.error?.message || `Error ${res.status}`); }
+  const reader = res.body.getReader(), dec = new TextDecoder();
+  let buf = '';
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buf += dec.decode(value, { stream: true });
+    const lines = buf.split('\n'); buf = lines.pop();
+    for (const l of lines) {
+      if (!l.trim() || l === 'data: [DONE]') continue;
+      try { const d = JSON.parse(l.replace(/^data: /,'')); const t = d.choices?.[0]?.delta?.content||''; if (t) onTok(t); } catch {}
+    }
+  }
+}
+
+async function streamAnthropic(key, sys, user) {
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST', signal: ctrl.signal,
+    headers: { 'x-api-key':key, 'anthropic-version':'2023-06-01', 'content-type':'application/json', 'anthropic-dangerous-direct-browser-access':'true' },
+    body: JSON.stringify({ model:'claude-haiku-4-5-20251001', max_tokens:4096, stream:true, system:sys, messages:[{role:'user',content:user}] })
+  });
+  if (!res.ok) { const e = await res.json().catch(()=>({})); throw new Error(e.error?.message||`Error ${res.status}`); }
+  const reader = res.body.getReader(), dec = new TextDecoder();
+  let buf = '';
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buf += dec.decode(value, { stream: true });
+    const lines = buf.split('\n'); buf = lines.pop();
+    for (const l of lines) {
+      if (!l.trim()) continue;
+      try { const d = JSON.parse(l.replace(/^data: /,'')); if (d.type==='content_block_delta') { const t=d.delta?.text||''; if(t) onTok(t); } } catch {}
+    }
+  }
+}
+
+async function callGemini(key, sys, user) {
+  const models = ['gemini-1.5-flash','gemini-1.5-flash-latest'];
+  for (const m of models) {
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent?key=${key}`,{
+      method:'POST', signal:ctrl.signal,
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({ system_instruction:{parts:[{text:sys}]}, contents:[{role:'user',parts:[{text:user}]}], generationConfig:{maxOutputTokens:4096} })
+    });
+    if (res.status===404) continue;
+    if (!res.ok) { const e=await res.json().catch(()=>({})); throw new Error(e.error?.message||`Error ${res.status}`); }
+    const data = await res.json();
+    const txt  = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+    for (let i=0; i<txt.length; i+=4) {
+      if (ctrl.signal.aborted) break;
+      onTok(txt.slice(i,i+4));
+      await new Promise(r=>setTimeout(r,9));
+    }
+    return;
+  }
+  throw new Error('All Gemini models unavailable.');
+}
+
+/* ── Token handler ── */
+function onTok(tok) {
+  fullText += tok;
+  document.getElementById('streamTxt').textContent = fullText;
+  const box = document.getElementById('streamBox');
+  box.scrollTop = box.scrollHeight;
+  tickPills();
+}
+
+function tickPills() {
+  const map = { 'Overview':'Career Overview','Why This':'Why This Career','Phase 1':'Phase 1','Phase 2':'Phase 2','Phase 3':'Phase 3','Phase 4':'Phase 4','Skills':'Technical Skills','Education':'Education','Projects':'Projects to Build','Resources':'Free Learning','Salary':'Salary','30-Day':'30-Day' };
+  PILL_KEYS.forEach(k => {
+    const el = document.querySelector(`.spill[data-k="${k}"]`);
+    if (!el) return;
+    const needle = map[k];
+    if (fullText.includes(`## ${needle}`)) { el.classList.remove('act'); el.classList.add('done'); }
+    else if (fullText.includes(needle.slice(0,7))) el.classList.add('act');
+  });
+}
+
+/* ── Finish ── */
+function finish() {
+  document.getElementById('sCursor').style.display = 'none';
+  document.getElementById('gStatusTxt').textContent = 'Roadmap ready! Rendering your plan…';
+  setTimeout(() => {
+    buildRoadmap(parseText(fullText));
+    showScreen('roadmapScreen');
+  }, 500);
+}
+
+/* ── Parse ── */
+function parseText(txt) {
+  const out = {};
+  const parts = txt.split(/\n(?=## )/);
+  parts.forEach(p => {
+    const m = p.match(/^## (.+?)\n([\s\S]*)/);
+    if (m) out[m[1].trim()] = m[2].trim();
+  });
+  return out;
+}
+
+/* ── Build roadmap DOM ── */
+function buildRoadmap(sec) {
+  document.getElementById('rmEmoji').textContent = sel.icon;
+  document.getElementById('rmTitle').textContent  = sel.title;
+  const ov = sec['Career Overview'] || '';
+  document.getElementById('rmOverview').textContent = ov.replace(/^[#*\-]\s*/gm,'').slice(0,280);
+
+  const cards = document.getElementById('rmCards');
+  cards.innerHTML = '';
+  let delay = 0;
+
+  const add = el => { el.style.animationDelay = `${delay}ms`; delay += 70; cards.appendChild(el); };
+
+  /* Why */
+  const why = sec['Why This Career'];
+  if (why) add(textCard('✨','Why This Career', why,'rgba(124,58,237,.12)'));
+
+  /* Phases */
+  const phases = [];
+  const phaseNames = ['Foundation','Skill Building','First Role & Growth','Expertise & Leadership'];
+  const phaseDurs  = ['Months 1–6','Months 7–18','Years 2–3','Years 4+'];
+  for (let n=1;n<=4;n++) {
+    const key = Object.keys(sec).find(k=>k.startsWith(`Phase ${n}`));
+    if (key) phases.push({ content:sec[key], name:phaseNames[n-1], dur:phaseDurs[n-1] });
+  }
+  if (phases.length) add(phasesCard(phases));
+
+  /* Skills */
+  const tech = sec['Technical Skills'] || '';
+  const soft = sec['Soft Skills']     || '';
+  if (tech||soft) add(skillsCard(tech, soft));
+
+  /* Education */
+  const edu = sec['Education & Degrees'] || sec['Education'] || '';
+  if (edu) add(textCard('🎓','Education & Degrees', edu,'rgba(6,182,212,.12)'));
+
+  /* Certs */
+  const cert = sec['Certifications'] || '';
+  if (cert) add(certCard(cert));
+
+  /* Projects */
+  const proj = sec['Projects to Build'] || sec['Projects'] || '';
+  if (proj) add(projectsCard(proj));
+
+  /* Resources */
+  const res = sec['Free Learning Resources'] || sec['Resources'] || '';
+  if (res) add(resourcesCard(res));
+
+  /* Salary */
+  const sal = sec['Salary Ranges'] || sec['Salary'] || '';
+  if (sal) add(salaryCard(sal));
+
+  /* Market */
+  const mkt = sec['Job Market Outlook'] || '';
+  if (mkt) add(textCard('📈','Job Market Outlook', mkt,'rgba(16,185,129,.12)'));
+
+  /* 30-day */
+  const plan = sec['30-Day Quick Start'] || sec['30-Day'] || '';
+  if (plan) add(weeklyCard(plan));
+}
+
+/* ── Card factories ── */
+function textCard(icon, title, body, iconBg) {
+  const d = el('div','sc');
+  d.innerHTML = `<div class="sc-head"><div class="sc-ico" style="background:${iconBg}">${icon}</div>${esc(title)}</div><div class="sc-body">${md(body)}</div>`;
+  return d;
+}
+
+function phasesCard(phases) {
+  const d = el('div','sc');
+  const cols = phases.map((p,i) => `
+    <div class="phase-col">
+      <div class="ph-name">${esc(p.name)}</div>
+      <div class="ph-dur">${esc(p.dur)}</div>
+      <div class="ph-body">${md(p.content.slice(0,600))}</div>
+    </div>`).join('');
+  d.innerHTML = `<div class="sc-head"><div class="sc-ico" style="background:rgba(124,58,237,.12)">🗺️</div>5-Year Roadmap</div><div class="phase-grid">${cols}</div>`;
+  return d;
+}
+
+function skillsCard(tech, soft) {
+  const d = el('div','sc');
+  const toBadges = (txt, cls) =>
+    splitBadges(txt).map(s=>`<span class="sbadge ${cls}">${esc(s)}</span>`).join('');
+  let html = `<div class="sc-head"><div class="sc-ico" style="background:rgba(124,58,237,.12)">⚡</div>Skills Required</div>`;
+  if (tech) html += `<div class="skill-sub">Technical</div><div class="badge-cloud" style="margin-bottom:14px">${toBadges(tech,'tech')}</div>`;
+  if (soft) html += `<div class="skill-sub">Soft skills</div><div class="badge-cloud">${toBadges(soft,'soft')}</div>`;
+  d.innerHTML = html;
+  return d;
+}
+
+function certCard(txt) {
+  const d = el('div','sc');
+  const items = txt.split('\n').filter(l=>l.trim()&&!l.startsWith('#'))
+    .map(l=>`<div class="cert-row"><div class="cert-dot"></div><span>${esc(l.replace(/^[-*•\d+\.\s]+/,'').trim())}</span></div>`)
+    .join('');
+  d.innerHTML = `<div class="sc-head"><div class="sc-ico" style="background:rgba(217,119,87,.12)">🏆</div>Certifications</div><div class="cert-list">${items}</div>`;
+  return d;
+}
+
+function projectsCard(txt) {
+  const d = el('div','sc');
+  const matches = [...txt.matchAll(/###\s*Project\s*\d+[:\s–\-]+(.+?)\n([\s\S]*?)(?=###|$)/gi)];
+  let rows;
+  if (matches.length) {
+    rows = matches.slice(0,5).map((m,i)=>`
+      <div class="proj-row">
+        <div class="proj-num">${i+1}</div>
+        <div class="proj-body">
+          <strong>${esc(m[1].trim())}</strong>
+          <span>${esc(m[2].trim().replace(/^[-*]\s*/,'').slice(0,160))}</span>
+        </div>
+      </div>`).join('');
+  } else {
+    rows = txt.split('\n').filter(l=>l.trim()&&!l.startsWith('#')).slice(0,5)
+      .map((l,i)=>`<div class="proj-row"><div class="proj-num">${i+1}</div><div class="proj-body"><span>${esc(l.replace(/^[-*•\d+\.\s]+/,'').trim())}</span></div></div>`)
+      .join('');
+  }
+  d.innerHTML = `<div class="sc-head"><div class="sc-ico" style="background:rgba(16,185,129,.12)">🛠️</div>Projects to Build</div><div class="proj-list">${rows}</div>`;
+  return d;
+}
+
+function resourcesCard(txt) {
+  const d = el('div','sc');
+  const icons = ['📚','🎓','💻','🌐','▶️','📖'];
+  const items = txt.split('\n').filter(l=>l.trim()&&!l.startsWith('#')).slice(0,6)
+    .map((l,i)=>`<div class="res-row"><span class="res-ico">${icons[i%icons.length]}</span><span>${esc(l.replace(/^[-*•\d+\.\s]+/,'').trim())}</span></div>`)
+    .join('');
+  d.innerHTML = `<div class="sc-head"><div class="sc-ico" style="background:rgba(6,182,212,.12)">📚</div>Free Learning Resources</div><div class="res-list">${items}</div>`;
+  return d;
+}
+
+function salaryCard(txt) {
+  const d = el('div','sc');
+  const rx = /(Entry|Junior|Mid|Senior|Lead|Principal)[^$\d]*(\$[\d,k]+\s*[–\-—to]+\s*\$?[\d,k]+)/gi;
+  const ranges = [...txt.matchAll(rx)];
+  let inner;
+  if (ranges.length) {
+    inner = `<div class="salary-grid">${ranges.map(m=>`
+      <div class="sal-card">
+        <div class="sal-lv">${esc(m[1])}</div>
+        <div class="sal-range">${esc(m[2])}</div>
+      </div>`).join('')}</div>`;
+  } else {
+    inner = `<div class="sc-body">${md(txt)}</div>`;
+  }
+  d.innerHTML = `<div class="sc-head"><div class="sc-ico" style="background:rgba(234,179,8,.12)">💰</div>Salary Ranges (USD)</div>${inner}`;
+  return d;
+}
+
+function weeklyCard(txt) {
+  const d = el('div','sc');
+  const weeks = [...txt.matchAll(/Week\s*(\d)[:\s–\-]+([^]*?)(?=Week\s*\d|$)/gi)];
+  let inner;
+  if (weeks.length) {
+    inner = `<div class="week-grid">${weeks.slice(0,4).map(w=>`
+      <div class="wk-card">
+        <div class="wk-lbl">Week ${esc(w[1])}</div>
+        <div class="wk-body">${md(w[2].trim().slice(0,350))}</div>
+      </div>`).join('')}</div>`;
+  } else {
+    inner = `<div class="sc-body">${md(txt)}</div>`;
+  }
+  d.innerHTML = `<div class="sc-head"><div class="sc-ico" style="background:rgba(124,58,237,.12)">📅</div>30-Day Quick Start</div>${inner}`;
+  return d;
+}
+
+/* ── Helpers ── */
+function el(tag, cls) { const e=document.createElement(tag); e.className=cls; return e; }
+
+function splitBadges(txt) {
+  const clean = txt.replace(/^[-*•#\d+\.\s]+/gm,'').trim();
+  const list = clean.includes(',') ? clean.split(/[,\n]/) : clean.split('\n');
+  return list.map(s=>s.trim()).filter(s=>s&&s.length<45).slice(0,16);
+}
+
+function md(raw) {
+  if (!raw) return '';
+  let t = esc(raw);
+  t = t.replace(/###\s(.+)/g, '<strong style="color:var(--t1)">$1</strong>');
+  t = t.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  t = t.replace(/`(.+?)`/g, '<code>$1</code>');
+  t = t.replace(/^[–\-\*•]\s(.+)/gm, '<li>$1</li>');
+  t = t.replace(/(<li>.*?<\/li>\n?)+/g, m => `<ul>${m}</ul>`);
+  t = t.replace(/\n{2,}/g,'</p><p style="margin-top:8px">');
+  t = t.replace(/\n/g,'<br>');
+  return t;
+}
+
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+/* ── Screen switching ── */
+function showScreen(id) {
+  ['selectorScreen','generatingScreen','roadmapScreen'].forEach(s => {
+    document.getElementById(s).style.display = s===id ? 'block' : 'none';
+  });
+}
+
+function startOver() {
+  if (ctrl) { ctrl.abort(); ctrl=null; }
+  sel = null; fullText = '';
+  document.querySelectorAll('.c-card').forEach(c=>c.classList.remove('sel'));
+  document.getElementById('customInput').value = '';
+  document.getElementById('genBtn').classList.remove('on');
+  document.getElementById('genHint').textContent = '';
+  showScreen('selectorScreen');
+}
+
+function copyRoadmap(btn) {
+  navigator.clipboard.writeText(fullText).then(() => {
+    const orig = btn.textContent; btn.textContent = '✅ Copied!';
+    setTimeout(() => btn.textContent = orig, 2000);
+  });
+}
+
+function chatAbout() {
+  if (sel) localStorage.setItem('orion_prefill', `I want to become a ${sel.title}. Can you give me specific advice, answer my questions, and help me get started on my journey?`);
+  window.location.href = 'index.html';
+}
+
+/* ── Auto-launch if navigated from chat ── */
+const autoCareer = localStorage.getItem('orion_career_goto');
+if (autoCareer) {
+  localStorage.removeItem('orion_career_goto');
+  setTimeout(() => {
+    const flat = Object.values(CAREERS).flat();
+    const match = flat.find(c => c.title.toLowerCase().includes(autoCareer.toLowerCase()));
+    if (match) {
+      const card = [...document.querySelectorAll('.c-card')].find(c => c.querySelector('.c-name')?.textContent === match.title);
+      if (card) pickCareer(match.title, match.icon, card);
+    } else {
+      document.getElementById('customInput').value = autoCareer;
+      onSearchType();
+    }
+    generate();
+  }, 300);
+}
+</script>
+</body>
+</html>

@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
@@ -60,9 +60,9 @@ model Message {
   id             String       @id @default(cuid())
   conversationId String
   role           String       // 'user' | 'ai'
-  text           String       @db.Text
-  apiText        String?      @db.Text
-  attachments    Json         @default("[]")
+  text           String
+  apiText        String?
+  attachments    String       @default("[]")  // JSON-encoded array — SQLite has no native Json type
   createdAt      DateTime     @default(now())
   conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
 }

@@ -8,13 +8,12 @@ async function main() {
   /* ── Test DB connection ── */
   try {
     await prisma.$connect();
-    console.log('✓ PostgreSQL connected');
+    console.log('✓ Database connected (SQLite)');
   } catch (err) {
     console.error('\n✗ Database connection failed:', err.message);
     console.error('\nTroubleshooting:');
-    console.error('  1. Make sure PostgreSQL is running');
-    console.error('  2. Check DATABASE_URL in your .env file');
-    console.error('  3. Run: createdb orionai  (to create the database)\n');
+    console.error('  1. Check DATABASE_URL in your .env file (should be a "file:" path)');
+    console.error('  2. Run: npx prisma migrate dev --name init  (to create the database)\n');
     process.exit(1);
   }
 
