@@ -11,7 +11,7 @@ The trained LoRA adapter is publicly available on HuggingFace:
 
 ### 🚀 Live Demo
 
-**[<TODO: paste your Railway URL here after deploying>]()**
+**[explainable-ai-production.up.railway.app](https://explainable-ai-production.up.railway.app)**
 
 The hosted demo runs chat through Groq's free cloud Llama models — fast, reliable, no setup needed. The custom **orion-xai** fine-tuned model runs via Ollama and only works when you run the project locally (see "How to run" below); the live demo can't host it without a GPU-backed server.
 
