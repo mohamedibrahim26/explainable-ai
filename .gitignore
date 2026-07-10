@@ -49,8 +49,10 @@ __pycache__/
 ai-service/__pycache__/
 ai-service/**/__pycache__/
 
-# ── AI service vector store (auto-rebuilt on startup) ────────────────────────
-ai-service/vector_store/
+# ── AI service vector store DATA (auto-rebuilt on startup) ───────────────────
+# Only ignore the persisted Chroma DB data, not the vector_store/ source code
+# (chroma_client.py etc. must stay tracked or the app fails to import it).
+ai-service/chroma_db/
 
 # ── Duplicate nested folder ───────────────────────────────────────────────────
 AIChatClone/
