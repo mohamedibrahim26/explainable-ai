@@ -34,6 +34,10 @@ const allowedOrigins = [
 if (process.env.RAILWAY_PUBLIC_DOMAIN) {
   allowedOrigins.push(`https://${process.env.RAILWAY_PUBLIC_DOMAIN}`);
 }
+// Hugging Face Spaces sets SPACE_HOST to the app's public domain (e.g. user-orion-xai.hf.space).
+if (process.env.SPACE_HOST) {
+  allowedOrigins.push(`https://${process.env.SPACE_HOST}`);
+}
 
 app.use(cors({
   origin: (origin, cb) => {

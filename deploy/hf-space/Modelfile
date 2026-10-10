@@ -1,0 +1,32 @@
+# Ollama config for the Hugging Face Space.
+# The model was fine-tuned on the Alpaca prompt format (see notebooks/orion_xai_kaggle_train.ipynb),
+# so the template below rebuilds that format instead of Llama 3's chat format.
+FROM /home/user/models/orion-xai.gguf
+
+TEMPLATE """Below is an instruction that describes a task. Write a response that appropriately completes the request.
+{{- if .System }}
+
+{{ .System }}
+{{- end }}
+{{- range .Messages }}
+{{- if eq .Role "user" }}
+
+### Instruction:
+{{ .Content }}
+
+### Input:
+
+
+### Response:
+{{ else if eq .Role "assistant" }}{{ .Content }}
+{{- end }}
+{{- end }}"""
+
+PARAMETER temperature 0.7
+PARAMETER top_p 0.9
+PARAMETER num_ctx 2048
+PARAMETER repeat_penalty 1.1
+PARAMETER num_predict 512
+PARAMETER stop "<|eot_id|>"
+PARAMETER stop "<|end_of_text|>"
+PARAMETER stop "### Instruction:"

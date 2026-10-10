@@ -75,3 +75,8 @@ kaggle_push_cli.bat
 download_adapter.bat
 push_to_kaggle.py
 run_push.bat
+
+# ── Local databases (never commit: they hold user accounts) ──
+*.db
+*.db-journal
+*.sqlite

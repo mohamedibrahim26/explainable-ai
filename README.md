@@ -11,9 +11,9 @@ The trained LoRA adapter is publicly available on HuggingFace:
 
 ### 🚀 Live Demo
 
-**[explainable-ai-production.up.railway.app](https://explainable-ai-production.up.railway.app)**
+**[huggingface.co/spaces/SnowyIbrahim/orion-xai](https://huggingface.co/spaces/SnowyIbrahim/orion-xai)**
 
-The hosted demo runs chat through Groq's free cloud Llama models — fast, reliable, no setup needed. The custom **orion-xai** fine-tuned model runs via Ollama and only works when you run the project locally (see "How to run" below); the live demo can't host it without a GPU-backed server.
+The demo runs the **fine-tuned orion-xai model itself** (4-bit, via Ollama) on a free Hugging Face Space, so replies stream at a few words per second. The Space sleeps after 48 hours without visitors and takes a minute or two to wake up. Accounts reset when it restarts. Setup: [`docs/DEPLOY_HF_SPACE.md`](docs/DEPLOY_HF_SPACE.md).
 
 ---
 
@@ -192,7 +192,6 @@ FRONTEND_URL=http://localhost:3001
 ADMIN_EMAILS=you@example.com
 ```
 
-> On Railway, point `DATABASE_URL` at a mounted Volume (e.g. `file:/data/orion.db`) so the SQLite file survives redeploys.
 
 **ai-service/.env:**
 ```
@@ -221,4 +220,4 @@ AI_SERVICE_PORT=8000
 - The Kaggle training notebook (`notebooks/orion_xai_kaggle_train.ipynb`) includes all fixes for Unsloth + TRL 0.24.0 compatibility.
 - ChromaDB vector store is auto-created when the AI service starts for the first time.
 - All `.env` files and `.gguf` files are in `.gitignore`.
-- Orion-XAI (the fine-tuned model) requires Ollama running locally — it isn't reachable on the hosted demo. The live demo and the signed-in chat flow both default to Groq's free cloud Llama.
+- Locally, the fine-tuned model runs through Ollama (see *How to run*). The hosted demo does the same inside the Space container.
