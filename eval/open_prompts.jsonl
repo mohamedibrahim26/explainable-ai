@@ -1,0 +1,25 @@
+{"id": "open-01", "category": "xai", "prompt": "A random forest IDS flags a flow as port-scan. Top SHAP values: dst_port_count=+0.41, syn_flag_ratio=+0.27, avg_packet_size=-0.05. Explain to a junior analyst what this means and what to check next."}
+{"id": "open-02", "category": "xai", "prompt": "When would you pick Anchors over SHAP to explain a phishing-email classifier to a compliance team? Give one concrete example rule."}
+{"id": "open-03", "category": "xai", "prompt": "LIME gives different top features each time I explain the same malware prediction. Why, and how can I make it more stable?"}
+{"id": "open-04", "category": "xai", "prompt": "Explain the difference between local and global explanations, using a fraud-detection model as the example."}
+{"id": "open-05", "category": "xai", "prompt": "My SHAP summary plot shows 'source_ip' as the most important feature in my intrusion detector. Why is this a warning sign?"}
+{"id": "open-06", "category": "xai", "prompt": "Write a counterfactual explanation for a login flagged as risky because of a new country, a new device and an unusual time."}
+{"id": "open-07", "category": "xai", "prompt": "Compare TreeSHAP and KernelSHAP: speed, accuracy and when to use each."}
+{"id": "open-08", "category": "xai", "prompt": "How could an attacker abuse published SHAP explanations of a malware detector?"}
+{"id": "open-09", "category": "soc", "prompt": "Triage this alert: EDR reports rundll32.exe spawned by excel.exe making an outbound connection to an IP first seen today. Give priority, reasoning and next steps."}
+{"id": "open-10", "category": "soc", "prompt": "A user reports their account sent emails they did not write. Walk through the first hour of incident response."}
+{"id": "open-11", "category": "soc", "prompt": "Write a short escalation note to a Tier-2 analyst for a confirmed credential-stuffing attack on the VPN."}
+{"id": "open-12", "category": "soc", "prompt": "How should a SOC decide whether to trust an ML model's 'benign' verdict on an alert that a rule-based detection marked as high severity?"}
+{"id": "open-13", "category": "soc", "prompt": "List the evidence you would preserve before reimaging a laptop infected with ransomware, and why."}
+{"id": "open-14", "category": "soc", "prompt": "A SIEM rule fires 900 times a day and analysts ignore it. How would you tune it without losing real detections?"}
+{"id": "open-15", "category": "mitre", "prompt": "Map this behaviour to MITRE ATT&CK tactics and techniques: attacker sends a malicious link, gets a shell via PowerShell, dumps LSASS, then uses PsExec to reach a file server."}
+{"id": "open-16", "category": "mitre", "prompt": "What detections would you build for T1003 OS Credential Dumping on Windows endpoints?"}
+{"id": "open-17", "category": "mitre", "prompt": "Explain the difference between an ATT&CK tactic and a technique with one example of each."}
+{"id": "open-18", "category": "trust", "prompt": "Under the EU AI Act, what obligations might apply to an AI system that scores job applicants, and why?"}
+{"id": "open-19", "category": "trust", "prompt": "How can explainable AI help an organisation meet GDPR requirements around automated decisions, and where does it fall short?"}
+{"id": "open-20", "category": "trust", "prompt": "Describe a data poisoning attack on a spam filter and two defences."}
+{"id": "open-21", "category": "trust", "prompt": "What is model drift in network intrusion detection, and how would you monitor for it?"}
+{"id": "open-22", "category": "code", "prompt": "Write Python code that trains a gradient-boosting classifier on a pandas DataFrame and prints the top 5 SHAP features for one prediction."}
+{"id": "open-23", "category": "code", "prompt": "Write Python code using the lime package to explain one prediction of a scikit-learn text classifier for phishing emails."}
+{"id": "open-24", "category": "reasoning", "prompt": "An ML model says an alert is 92% malicious, but the SHAP explanation is dominated by the hour of day. Should the analyst trust the verdict? Reason step by step."}
+{"id": "open-25", "category": "reasoning", "prompt": "Two explanation methods disagree about the top feature for the same prediction. What does that tell you and what would you do?"}

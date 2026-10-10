@@ -73,7 +73,7 @@ All files are Alpaca-style JSONL:
 **LoRA config:** r=16, alpha=32, dropout=0.05, target modules: q/k/v/o/gate/up/down projections
 **Training:** 3 epochs, batch size 2, gradient accumulation 8, learning rate 2e-4 (cosine), AdamW 8-bit
 
-**Evaluation:** not done yet. Training loss fell from about 5.0 to 1.2, but there is no held-out comparison against the base Llama 3.2 3B model. That comparison is the next step.
+**Evaluation:** an evaluation against the base Llama 3.2 3B model is set up in [`eval/`](eval/README.md) (40 held-out multiple-choice questions, 25 open-ended prompts, blind LLM judge). Results will be added here once it has been run. Training loss fell from about 5.0 to 1.2.
 
 The adapter (~97 MB) is available at:
 **[huggingface.co/SnowyIbrahim/orion-xai-adapter](https://huggingface.co/SnowyIbrahim/orion-xai-adapter)**
