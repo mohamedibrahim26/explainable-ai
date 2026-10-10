@@ -24,7 +24,7 @@ from trl import SFTTrainer
 # CONFIG  — adjust paths / hyperparams here
 # ─────────────────────────────────────────────────────────
 BASE_MODEL    = "meta-llama/Llama-3.2-3B"   # or local path to model weights
-DATASET_PATH  = "xai_cybersec_dataset.jsonl" # relative to this script
+DATASET_PATH  = "data/orion_xai_final_dataset.jsonl"  # run from the repo root
 OUTPUT_DIR    = "./orion-xai-adapter"        # LoRA adapter saved here
 MERGED_DIR    = "./orion-xai-merged"         # optional: merged model for GGUF export
 

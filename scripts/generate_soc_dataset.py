@@ -144,7 +144,7 @@ entries = [
 
 print(f"Total entries: {len(entries)}")
 
-output_path = "soc_workflows_dataset.jsonl"
+output_path = "data/soc_workflows_dataset.jsonl"
 with open(output_path, "w", encoding="utf-8") as f:
     for entry in entries:
         f.write(json.dumps(entry, ensure_ascii=False) + "\n")
@@ -236,7 +236,7 @@ entries_batch2 = [
 ]
 
 print(f"Batch 2 entries: {len(entries_batch2)}")
-output_path = "soc_workflows_dataset.jsonl"
+output_path = "data/soc_workflows_dataset.jsonl"
 with open(output_path, "a", encoding="utf-8") as f:
     for entry in entries_batch2:
         f.write(json.dumps(entry, ensure_ascii=False) + "\n")
