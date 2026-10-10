@@ -2,7 +2,7 @@
 
 ![Node.js](https://img.shields.io/badge/Node.js-18+-green) ![Python](https://img.shields.io/badge/Python-3.10+-blue) ![Ollama](https://img.shields.io/badge/Ollama-local-orange) ![SQLite](https://img.shields.io/badge/SQLite-3-blue) ![HuggingFace](https://img.shields.io/badge/HuggingFace-SnowyIbrahim%2Forion--xai--adapter-yellow) ![License](https://img.shields.io/badge/license-MIT-lightgrey)
 
-This project is a full-stack AI chat application built around a custom fine-tuned language model focused on Explainable AI (XAI) and cybersecurity. The model, **orion-xai**, is based on Llama 3.2 3B Instruct and was fine-tuned using QLoRA (4-bit NF4) on a dataset of **4,870 instruction examples** across 9 specialised datasets covering SHAP, LIME, Anchors, SOC workflows, MITRE ATT&CK, incident response, trustworthy AI, and LLM reasoning chains.
+This project is a full-stack AI chat application built around a custom fine-tuned language model focused on Explainable AI (XAI) and cybersecurity. The model, **orion-xai**, is based on Llama 3.2 3B Instruct and was fine-tuned using QLoRA (4-bit NF4) on **4,169 unique synthetic instruction examples** covering SHAP, LIME, Anchors, SOC workflows, MITRE ATT&CK, incident response, trustworthy AI, and LLM reasoning chains.
 
 This work is part of the **AI-REASON** project (AI-assisted Reliable and Explainable Analysis for Security OperatioNs) at Jönköping University. The goal is an AI that doesn't just give answers but explains *why* a model made a certain prediction — which is essential in real SOC environments.
 
@@ -41,21 +41,20 @@ Core XAI methods covered:
 
 ---
 
-## Training datasets (4,870 examples across 9 files)
+## Training data (4,169 unique examples)
 
-| File | Description | Examples |
-|---|---|---|
-| `xai_cybersec_1000.jsonl` | Core XAI + cybersecurity (SHAP/LIME/Anchors for IDS, EDR, UEBA) | ~1,000 |
-| `soc_workflows_dataset.jsonl` | SOC alert triage workflows and escalation decisions | ~300 |
-| `incident_response_dataset.jsonl` | PICERL incident response phases with XAI explanations | ~200 |
-| `llm_reasoning_security_dataset.jsonl` | LLM reasoning chains for security decisions | ~200 |
-| `mitre_threat_intel_combined.jsonl` | MITRE ATT&CK techniques + threat intelligence | ~200 |
-| `trustworthy_ai_dataset.jsonl` | Trustworthy/reliable AI, EU AI Act, GDPR, AI governance | ~150 |
-| `ml_security_code_dataset.jsonl` | Python ML/security code examples with XAI | ~300 |
-| `xai_llm_reasoning_chains_dataset.jsonl` | XAI evidence + LLM reasoning chains (SHAP waterfall, LIME, Anchors, Counterfactuals) | 100 |
-| `xai_cybersec_additions.jsonl` | Additional XAI cybersecurity examples | ~420 |
+| File | Rows | Description |
+| --- | ---: | --- |
+| `orion_xai_final_dataset.jsonl` | 3,601 | Core XAI + cybersecurity set (SHAP/LIME/Anchors for IDS, EDR, UEBA), already including the SOC, incident-response and LLM-reasoning sets |
+| `ml_security_code_dataset.jsonl` | 300 | Python ML/security code examples with XAI |
+| `trustworthy_ai_dataset.jsonl` | 150 | Trustworthy AI, EU AI Act, GDPR, AI governance |
+| `xai_llm_reasoning_chains_dataset.jsonl` | 100 | XAI evidence → LLM reasoning chain → security decision |
+| `mitre_threat_intel_combined.jsonl` | 18 | MITRE ATT&CK techniques + threat intelligence |
 
-All datasets are in Alpaca-style JSONL format:
+The data is **synthetic** (generated for this project, not real SOC logs). The original training run loaded all files including some that are already inside the final set, so it saw 4,870 rows with ~700 duplicates. Full breakdown in [`data/README.md`](data/README.md).
+
+All files are Alpaca-style JSONL:
+
 ```json
 {
   "instruction": "Explain the SHAP waterfall plot output for this network intrusion prediction.",
@@ -74,6 +73,8 @@ All datasets are in Alpaca-style JSONL format:
 **LoRA config:** r=16, alpha=32, dropout=0.05, target modules: q/k/v/o/gate/up/down projections
 **Training:** 3 epochs, batch size 2, gradient accumulation 8, learning rate 2e-4 (cosine), AdamW 8-bit
 
+**Evaluation:** not done yet. Training loss fell from about 5.0 to 1.2, but there is no held-out comparison against the base Llama 3.2 3B model. That comparison is the next step.
+
 The adapter (~97 MB) is available at:
 **[huggingface.co/SnowyIbrahim/orion-xai-adapter](https://huggingface.co/SnowyIbrahim/orion-xai-adapter)**
 
@@ -85,7 +86,7 @@ huggingface-cli download SnowyIbrahim/orion-xai-adapter --local-dir ./orion-xai-
 
 After downloading, merge and convert to GGUF for Ollama:
 ```bash
-python merge_and_convert.py
+python scripts/merge_and_convert.py
 ollama create orion-xai -f Modelfile
 ollama run orion-xai "Explain SHAP values for IDS detection"
 ```
@@ -110,43 +111,28 @@ ollama run orion-xai "Explain SHAP values for IDS detection"
 
 ```
 explainable-ai/
-├── index.html                          # Main chat interface
-├── landing.html                        # Landing page
-├── script.js                           # Frontend logic
-├── styles.css
-├── Modelfile                           # Ollama model config
+├── README.md
+├── Modelfile                     # Ollama model config
 │
-├── orion_xai_kaggle_train.ipynb        # Training notebook (Kaggle T4 GPU) ← main
-├── orion_xai_training.ipynb            # Training notebook (local)
-├── train_orion_xai.py                  # LoRA training script
-├── merge_adapter.py                    # Merge LoRA adapter into base model
-├── merge_and_convert.py                # Merge + convert to GGUF for Ollama
-│
-├── xai_cybersec_1000.jsonl             # Dataset 1: core XAI + cybersecurity
-├── soc_workflows_dataset.jsonl         # Dataset 2: SOC workflows
-├── incident_response_dataset.jsonl     # Dataset 3: incident response
-├── llm_reasoning_security_dataset.jsonl # Dataset 4: LLM reasoning
-├── mitre_threat_intel_combined.jsonl   # Dataset 5: MITRE ATT&CK
-├── trustworthy_ai_dataset.jsonl        # Dataset 6: trustworthy AI
-├── ml_security_code_dataset.jsonl      # Dataset 7: ML/security code
-├── xai_llm_reasoning_chains_dataset.jsonl # Dataset 8: XAI+LLM chains
-├── xai_cybersec_additions.jsonl        # Dataset 9: additional examples
-│
-├── backend/                            # Node.js Express API
+├── backend/                      # Node.js Express API (also serves the frontend)
+│   ├── public/                   # Frontend: index, landing, career, admin pages + script.js, styles.css
 │   ├── src/
-│   │   ├── server.js
-│   │   ├── routes/             # auth, messages, conversations, admin, ai, workspaces, projects
+│   │   ├── server.js / app.js
+│   │   ├── routes/               # auth, messages, conversations, admin, ai, workspaces, projects
 │   │   ├── middleware/
 │   │   └── lib/
 │   ├── prisma/
 │   └── .env.example
 │
-└── ai-service/                         # Python FastAPI service
-    ├── main.py
-    ├── config.py
-    ├── requirements.txt
-    ├── services/               # llm, rag, embedding, safety
-    └── .env.example
+├── ai-service/                   # Python FastAPI service
+│   ├── main.py
+│   ├── services/                 # llm, rag, embedding, safety
+│   └── requirements.txt
+│
+├── data/                         # Training datasets (JSONL) + data/README.md
+├── notebooks/                    # Kaggle T4 training notebook (main) + local notebook
+├── scripts/                      # train, merge adapter, convert to GGUF, dataset generator
+└── docs/                         # Kaggle setup guide, screenshots
 ```
 
 ---
@@ -158,7 +144,7 @@ explainable-ai/
 Download the adapter from HuggingFace and merge it:
 ```bash
 huggingface-cli download SnowyIbrahim/orion-xai-adapter --local-dir ./orion-xai-adapter
-python merge_and_convert.py
+python scripts/merge_and_convert.py
 ollama create orion-xai -f Modelfile
 ```
 
@@ -190,9 +176,7 @@ Service runs at `http://localhost:8000`.
 
 ### 4. Frontend
 
-Open **http://localhost:3001** in your browser — the backend serves `index.html` and everything else from `backend/public` directly, no extra step needed.
-
-(If you prefer live-reload while editing the root-level HTML/JS/CSS files, you can still open `index.html` with VS Code Live Server on port 5500 — `script.js`/`admin.html` auto-detect that and point at `localhost:3001` for the API.)
+Open **<http://localhost:3001>**. The backend serves everything in `backend/public/`, which is the only copy of the frontend. Edit files there.
 
 ---
 
@@ -204,7 +188,7 @@ DATABASE_URL="file:./dev.db"
 JWT_SECRET="long-random-string"
 JWT_REFRESH_SECRET="another-long-random-string"
 PORT=3001
-FRONTEND_URL=http://127.0.0.1:5500
+FRONTEND_URL=http://localhost:3001
 ADMIN_EMAILS=you@example.com
 ```
 
@@ -233,9 +217,8 @@ AI_SERVICE_PORT=8000
 
 ## Notes
 
-- The `.gguf` model file is not included (too large for GitHub). Download the adapter from HuggingFace and convert locally using `merge_and_convert.py`.
-- The Kaggle training notebook (`orion_xai_kaggle_train.ipynb`) includes all fixes for Unsloth + TRL 0.24.0 compatibility.
+- The `.gguf` model file is not included (too large for GitHub). Download the adapter from HuggingFace and convert locally using `scripts/merge_and_convert.py`.
+- The Kaggle training notebook (`notebooks/orion_xai_kaggle_train.ipynb`) includes all fixes for Unsloth + TRL 0.24.0 compatibility.
 - ChromaDB vector store is auto-created when the AI service starts for the first time.
 - All `.env` files and `.gguf` files are in `.gitignore`.
-- `backend/public/` is a copy of the root-level `index.html`, `script.js`, `styles.css`, `landing.html`, `career.html`, and `admin.html` — it's what gets deployed. If you edit the root copies, re-run `cp index.html script.js styles.css landing.html career.html admin.html backend/public/` (from the repo root) before deploying so the served version stays in sync.
 - Orion-XAI (the fine-tuned model) requires Ollama running locally — it isn't reachable on the hosted demo. The live demo and the signed-in chat flow both default to Groq's free cloud Llama.
