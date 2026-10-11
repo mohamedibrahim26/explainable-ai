@@ -13,7 +13,7 @@ The trained LoRA adapter is publicly available on HuggingFace:
 
 **[huggingface.co/spaces/SnowyIbrahim/orion-xai](https://huggingface.co/spaces/SnowyIbrahim/orion-xai)**
 
-The demo runs the **fine-tuned orion-xai model itself** (4-bit, via Ollama) on a free Hugging Face Space, so replies stream at a few words per second. The Space sleeps after 48 hours without visitors and takes a minute or two to wake up. Accounts reset when it restarts. Setup: [`docs/DEPLOY_HF_SPACE.md`](docs/DEPLOY_HF_SPACE.md).
+Chat with the **fine-tuned model itself** on a free Hugging Face GPU, and switch to the base Llama 3.2 3B to compare answers. The demo covers the model only; the full app (RAG, auth, admin dashboard) runs locally. Each visitor gets a small free GPU quota per day. Details: [`docs/DEPLOY_HF_SPACE.md`](docs/DEPLOY_HF_SPACE.md).
 
 ---
 
@@ -220,4 +220,4 @@ AI_SERVICE_PORT=8000
 - The Kaggle training notebook (`notebooks/orion_xai_kaggle_train.ipynb`) includes all fixes for Unsloth + TRL 0.24.0 compatibility.
 - ChromaDB vector store is auto-created when the AI service starts for the first time.
 - All `.env` files and `.gguf` files are in `.gitignore`.
-- Locally, the fine-tuned model runs through Ollama (see *How to run*). The hosted demo does the same inside the Space container.
+- Locally, the fine-tuned model runs through Ollama (see *How to run*). The hosted demo runs it with transformers + PEFT on ZeroGPU.
